@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "uSLDTs1oTSE=",
+  "success": true,
+  "projectFilePath": "E:\\CEP_test\\CustomerManagementSystem\\CustomerManagementSystem.core.backend\\CustomerManagementSystem.core.backend.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\HOANG TUNG\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.11\\microsoft.aspnetcore.openapi.9.0.11.nupkg.sha512",
+    "C:\\Users\\HOANG TUNG\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
