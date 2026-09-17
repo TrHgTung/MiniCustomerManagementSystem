@@ -1,4 +1,4 @@
-@CustomerManagementSystem.core.backend_HostAddress = http://localhost:5215
+@CustomerManagementSystem.core.backend_HostAddress = http://localhost:4401
 
 GET {{CustomerManagementSystem.core.backend_HostAddress}}/weatherforecast/
 Accept: application/json
