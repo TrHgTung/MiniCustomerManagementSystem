@@ -9,5 +9,8 @@ namespace CustomerManagementSystem.core.backend.Repositories.Interface
         Task<bool> HasAdminAccountAsync();
         Task<OrgMember> CreateAsync(OrgMember member);
         Task<bool> UpdateAsync(OrgMember member);
+        Task<IEnumerable<OrgMember>> GetAllManagersAsync();
+        Task<bool> ExistsByIdAsync(string id);
+        Task<bool> ExistsByEmailAsync(string email);
     }
 }

@@ -109,6 +109,7 @@ builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IInitialSAAccountService, InitialSAAccountService>();
+builder.Services.AddScoped<IAdministrativeService, AdministrativeService>();
 
 var app = builder.Build();
 

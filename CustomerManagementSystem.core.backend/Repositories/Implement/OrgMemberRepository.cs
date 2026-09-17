@@ -63,5 +63,28 @@ namespace CustomerManagementSystem.core.backend.Repositories.Implement
                 return false;
             }
         }
+
+        // Lấy danh sách toàn bộ Manager (Role == "1")
+        public async Task<IEnumerable<OrgMember>> GetAllManagersAsync()
+        {
+            return await _context.OrgMembers
+                .Where(m => m.Role == "1")
+                .OrderByDescending(m => m.CreatedAt)
+                .ToListAsync();
+        }
+
+        // Kiểm tra tồn tại theo Id
+        public async Task<bool> ExistsByIdAsync(string id)
+        {
+            return await _context.OrgMembers
+                .AnyAsync(m => m.OrgId.ToLower() == id.ToLower());
+        }
+
+        // Kiểm tra tồn tại theo Email
+        public async Task<bool> ExistsByEmailAsync(string email)
+        {
+            return await _context.OrgMembers
+                .AnyAsync(m => m.OrgEmail.ToLower() == email.ToLower());
+        }
     }
 }
