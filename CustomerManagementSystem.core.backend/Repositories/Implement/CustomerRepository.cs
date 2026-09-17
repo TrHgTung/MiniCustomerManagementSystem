@@ -127,5 +127,49 @@ namespace CustomerManagementSystem.core.backend.Repositories.Implement
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
         }
+
+        /// <summary>
+        /// tìm kiếm KH theo ký tự trùng khớp trong các cột 
+        /// CustomerId, CustomerName, CustomerEmail, CustomerPhone
+        /// </summary>
+        public async Task<IEnumerable<Customer>> SearchCustomersAsync(string keyword)
+        {
+            var lowerKeyword = keyword.Trim().ToLowerInvariant();
+
+            return await _context.Customers
+                .AsNoTracking()
+                .Where(c =>
+                    c.CustomerId.ToLower().Contains(lowerKeyword) ||
+                    c.CustomerName.ToLower().Contains(lowerKeyword) ||
+                    c.CustomerEmail.ToLower().Contains(lowerKeyword) ||
+                    c.CustomerPhone.ToLower().Contains(lowerKeyword)
+                )
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// lọc KH theo Nơi sinh sống (CustomerAddress)
+        /// hoặc Năm sinh (lấy Year 4 ký tự cuối trích từ CustomerBirth)
+        /// </summary>
+        public async Task<IEnumerable<Customer>> FilterCustomersAsync(string? address, int? birthYear)
+        {
+            var query = _context.Customers.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(address))
+            {
+                var lowerAddress = address.Trim().ToLowerInvariant();
+                query = query.Where(c => c.CustomerAddress.ToLower().Contains(lowerAddress));
+            }
+
+            if (birthYear.HasValue)
+            {
+                query = query.Where(c => c.CustomerBirth.Year == birthYear.Value);
+            }
+
+            return await query
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
+        }
     }
 }

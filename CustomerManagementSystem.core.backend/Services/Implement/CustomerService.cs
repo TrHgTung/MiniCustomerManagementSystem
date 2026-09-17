@@ -229,6 +229,38 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
         }
 
         /// <summary>
+        /// tìm kiếm KH theo từ khóa trùng khớp trong: CustomerId, CustomerName, CustomerEmail, CustomerPhone
+        /// Manager (Role="1"): chỉ trả về KH có IsActive = true
+        /// </summary>
+        public async Task<IEnumerable<CustomerDto>> SearchCustomersAsync(string keyword, string userRole)
+        {
+            var customers = await _customerRepository.SearchCustomersAsync(keyword);
+
+            if (userRole == "1")
+            {
+                customers = customers.Where(c => c.IsActive);
+            }
+
+            return customers.Select(MapToDto);
+        }
+
+        /// <summary>
+        /// lọc KH theo Nơi sinh sống (CustomerAddress) và/hoặc Năm sinh (lấy Year từ CustomerBirth)
+        /// Manager (Role="1"): chỉ trả về KH có IsActive = true
+        /// </summary>
+        public async Task<IEnumerable<CustomerDto>> FilterCustomersAsync(string? address, int? birthYear, string userRole)
+        {
+            var customers = await _customerRepository.FilterCustomersAsync(address, birthYear);
+
+            if (userRole == "1")
+            {
+                customers = customers.Where(c => c.IsActive);
+            }
+
+            return customers.Select(MapToDto);
+        }
+
+        /// <summary>
         /// map data từ entity KH sang DTO, bảo mật data trước khi trả lên cho client
         /// </summary>
         private static CustomerDto MapToDto(Customer customer)
