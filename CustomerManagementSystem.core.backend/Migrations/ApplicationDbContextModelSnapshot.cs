@@ -24,12 +24,9 @@ namespace CustomerManagementSystem.core.backend.Migrations
 
             modelBuilder.Entity("CustomerManagementSystem.core.backend.Entities.Models.Customer", b =>
                 {
-                    b.Property<int>("CustomerId")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("CustomerId")
                         .HasMaxLength(128)
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerId"));
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -67,12 +64,9 @@ namespace CustomerManagementSystem.core.backend.Migrations
 
             modelBuilder.Entity("CustomerManagementSystem.core.backend.Entities.Models.OrgMember", b =>
                 {
-                    b.Property<int>("OrgId")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("OrgId")
                         .HasMaxLength(128)
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrgId"));
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -108,6 +102,31 @@ namespace CustomerManagementSystem.core.backend.Migrations
                     b.HasKey("OrgId");
 
                     b.ToTable("OrgMembers");
+                });
+
+            modelBuilder.Entity("CustomerManagementSystem.core.backend.Entities.Models.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(128)
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System;
 
 namespace CustomerManagementSystem.core.backend.Entities.Models
 {
@@ -6,8 +7,8 @@ namespace CustomerManagementSystem.core.backend.Entities.Models
     {
         [Key]
         [Required]
-        [StringLength(128)]
-        public int OrgId { get; set; } // Ma nhan su
+        [MaxLength(128)]
+        public string OrgId { get; set; } // Ma nhan su
 
         [Required]
         [StringLength(128)]
