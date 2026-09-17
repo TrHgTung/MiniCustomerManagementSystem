@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using CustomerManagementSystem.core.backend.Data.DTO.Customer;
+using CustomerManagementSystem.core.backend.Helpers;
 using CustomerManagementSystem.core.backend.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +36,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomerDto>>> GetAll()
         {
-            var userRole = GetCurrentUserRole();
+            var userRole = User.GetCurrentUserRole();
             var customers = await _customerService.GetAllCustomersAsync();
 
             if (userRole == "1")
@@ -63,7 +64,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
                 });
             }
 
-            var userRole = GetCurrentUserRole();
+            var userRole = User.GetCurrentUserRole();
             if (userRole == "1" && !customer.IsActive)
             {
                 return NotFound(new
@@ -89,7 +90,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
 
             try
             {
-                var userRole = GetCurrentUserRole();
+                var userRole = User.GetCurrentUserRole();
                 var createdCustomer = await _customerService.CreateCustomerAsync(createDto, userRole);
                 return CreatedAtAction(nameof(GetById), new { id = createdCustomer.CustomerId }, createdCustomer);
             }
@@ -121,7 +122,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
 
             try
             {
-                var userRole = GetCurrentUserRole();
+                var userRole = User.GetCurrentUserRole();
                 var updated = await _customerService.UpdateCustomerAsync(id, updateDto, userRole);
                 if (!updated)
                 {
@@ -223,16 +224,6 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
         {
             var customers = await _customerService.GetPendingCustomersAsync();
             return Ok(customers);
-        }
-
-        /// <summary>
-        /// helper: lấy Role của user hiện tại từ JWT Claims
-        /// </summary>
-        private string GetCurrentUserRole()
-        {
-            return User.FindFirst(ClaimTypes.Role)?.Value
-                ?? User.FindFirst("role")?.Value
-                ?? "1"; // mặc định là Manager nếu không xác định được
         }
     }
 }

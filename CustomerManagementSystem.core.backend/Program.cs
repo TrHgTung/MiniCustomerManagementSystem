@@ -114,6 +114,7 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IInitialSAAccountService, InitialSAAccountService>();
 builder.Services.AddScoped<IAdministrativeService, AdministrativeService>();
+builder.Services.AddScoped<IExcelExportService, ExportExcelService>();
 
 var app = builder.Build();
 
@@ -124,7 +125,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Customer Management System API v1");
-        c.RoutePrefix = "swagger"; // Truy cập tại: /swagger
+        c.RoutePrefix = "swagger"; // route swagger docs: /swagger
     });
 }
 

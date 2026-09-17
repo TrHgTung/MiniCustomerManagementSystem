@@ -114,5 +114,18 @@ namespace CustomerManagementSystem.core.backend.Repositories.Implement
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
         }
+
+        /// <summary>
+        /// lấy danh sách KH được tạo trong khoảng thời gian (CreatedAt)
+        /// phục vụ cho mục đích xuất excel theo chunk batch
+        /// </summary>
+        public async Task<IEnumerable<Customer>> GetCustomersByDateRangeAsync(DateTime fromDate, DateTime toDate)
+        {
+            return await _context.Customers
+                .AsNoTracking()
+                .Where(c => c.CreatedAt >= fromDate && c.CreatedAt <= toDate)
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
+        }
     }
 }
