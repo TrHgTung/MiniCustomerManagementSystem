@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using CustomerManagementSystem.core.backend.Data.DTO.Customer;
 using CustomerManagementSystem.core.backend.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -8,6 +9,9 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
     /// <summary>
     /// Customer Data Controller: api/v1/admin/customers
     /// Hiển thị danh sách khách hàng trong trang admin
+    /// 
+    /// SA (Role="2"): thêm/sửa/xóa trực tiếp, isActive = true ngay
+    /// Manager (Role="1"): thêm/sửa được nhưng isActive = false, chờ SA duyệt approve
     /// </summary>
     [Authorize]
     [ApiController]
@@ -53,6 +57,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
 
         /// <summary>
         /// tạo mới 1 KH
+        /// SA -> isActive = true ngay, Manager -> isActive = false (chờ duyệt)
         /// </summary>
         [HttpPost]
         public async Task<ActionResult<CustomerDto>> Create([FromBody] CreateCustomerDto createDto)
@@ -64,7 +69,8 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
 
             try
             {
-                var createdCustomer = await _customerService.CreateCustomerAsync(createDto);
+                var userRole = GetCurrentUserRole();
+                var createdCustomer = await _customerService.CreateCustomerAsync(createDto, userRole);
                 return CreatedAtAction(nameof(GetById), new { id = createdCustomer.CustomerId }, createdCustomer);
             }
             catch (InvalidOperationException ex)
@@ -83,6 +89,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
 
         /// <summary>
         /// Cập nhật thông tin KH
+        /// SA -> giữ nguyên isActive, Manager -> isActive = false (chờ duyệt lại)
         /// </summary>
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateCustomerDto updateDto)
@@ -94,33 +101,37 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
 
             try
             {
-                var updated = await _customerService.UpdateCustomerAsync(id, updateDto);
+                var userRole = GetCurrentUserRole();
+                var updated = await _customerService.UpdateCustomerAsync(id, updateDto, userRole);
                 if (!updated)
                 {
-                    return NotFound(new
-                    {
+                    return NotFound(new {
                         message = $"Không tìm thấy mã KH '{id}' "
                     });
                 }
 
-                return Ok(new
-                {
-                    message = "Cập nhật thành công"
+                return Ok(new {
+                    message = userRole == "2"
+                        ? "Cập nhật thành công"
+                        : "Cập nhật thành công, đang chờ SA duyệt"
                 });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi xảy ra khi cập nhật KH: {CustomerId}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, new {
-                    message = "Đã xảy ra lỗi" 
+                    message = "Đã xảy ra lỗi"
                 });
             }
         }
 
         /// <summary>
-        /// xóa KH (Chỉ dành cho Quản trị viên - Role == "2")
+        /// xóa KH
         /// </summary>
-        [Authorize(Roles = "2")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
@@ -145,6 +156,63 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
                     message = "Đã xảy ra lỗi"
                 });
             }
+        }
+
+        /// <summary>
+        /// SA duyệt approve cho KH đang chờ (isActive: false -> true)
+        /// Chỉ dành cho SA (Role = "2")
+        /// </summary>
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPatch("{id}/approve")]
+        public async Task<IActionResult> Approve(string id)
+        {
+            try
+            {
+                var approved = await _customerService.ApproveCustomerAsync(id);
+                if (!approved)
+                {
+                    return NotFound(new {
+                        message = $"Không tìm thấy KH '{id}'"
+                    });
+                }
+
+                return Ok(new {
+                    message = $"Đã duyệt approve KH '{id}' thành công"
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi duyệt KH: {CustomerId}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, new {
+                    message = "Đã xảy ra lỗi"
+                });
+            }
+        }
+
+        /// <summary>
+        /// lấy danh sách KH đang chờ duyệt (isActive = false)
+        /// Chỉ dành cho SA (Role = "2")
+        /// </summary>
+        [Authorize(Policy = "AdminOnly")]
+        [HttpGet("pending")]
+        public async Task<ActionResult<IEnumerable<CustomerDto>>> GetPending()
+        {
+            var customers = await _customerService.GetPendingCustomersAsync();
+            return Ok(customers);
+        }
+
+        /// <summary>
+        /// helper: lấy Role của user hiện tại từ JWT Claims
+        /// </summary>
+        private string GetCurrentUserRole()
+        {
+            return User.FindFirst(ClaimTypes.Role)?.Value
+                ?? User.FindFirst("role")?.Value
+                ?? "1"; // mặc định là Manager nếu không xác định được
         }
     }
 }

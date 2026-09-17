@@ -6,8 +6,10 @@ namespace CustomerManagementSystem.core.backend.Services.Interface
     {
         Task<IEnumerable<CustomerDto>> GetAllCustomersAsync();
         Task<CustomerDto?> GetCustomerByIdAsync(string customerId);
-        Task<CustomerDto> CreateCustomerAsync(CreateCustomerDto createDto);
-        Task<bool> UpdateCustomerAsync(string customerId, UpdateCustomerDto updateDto);
+        Task<CustomerDto> CreateCustomerAsync(CreateCustomerDto createDto, string userRole);
+        Task<bool> UpdateCustomerAsync(string customerId, UpdateCustomerDto updateDto, string userRole);
         Task<bool> DeleteCustomerAsync(string customerId);
+        Task<bool> ApproveCustomerAsync(string customerId);
+        Task<IEnumerable<CustomerDto>> GetPendingCustomersAsync();
     }
 }

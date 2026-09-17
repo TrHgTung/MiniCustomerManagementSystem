@@ -11,5 +11,6 @@ namespace CustomerManagementSystem.core.backend.Repositories.Interface
         Task<bool> DeleteCustomerAsync(string customerId);
         Task<bool> ExistsByIdAsync(string customerId);
         Task<bool> ExistsByEmailAsync(string email, string? excludeCustomerId = null);
+        Task<IEnumerable<Customer>> GetPendingCustomersAsync();
     }
 }

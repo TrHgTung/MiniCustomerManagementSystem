@@ -102,5 +102,17 @@ namespace CustomerManagementSystem.core.backend.Repositories.Implement
 
             return await query.AnyAsync();
         }
+
+        /// <summary>
+        /// lấy danh sách KH đang chờ duyệt (isActive = false)
+        /// </summary>
+        public async Task<IEnumerable<Customer>> GetPendingCustomersAsync()
+        {
+            return await _context.Customers
+                .AsNoTracking()
+                .Where(c => !c.IsActive)
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
+        }
     }
 }
