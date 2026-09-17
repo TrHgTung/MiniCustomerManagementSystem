@@ -27,7 +27,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
         }
 
         /// <summary>
-        /// Lọc KH theo Nơi sinh sống (address) và/hoặc Năm sinh (birthYear)
+        /// Lọc KH theo Nơi sinh sống (CustomerAddress) và/hoặc Năm sinh (trích từ 4 kí tụe của CustomerBirth)
         /// Ít nhất một trong hai tham số phải được cung cấp
         /// </summary>
         [HttpGet]

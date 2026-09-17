@@ -150,7 +150,7 @@ namespace CustomerManagementSystem.core.backend.Repositories.Implement
 
         /// <summary>
         /// lọc KH theo Nơi sinh sống (CustomerAddress)
-        /// hoặc Năm sinh (lấy Year 4 ký tự cuối trích từ CustomerBirth)
+        /// và/hoặc Năm sinh (trích Year từ trường CustomerBirth kiểu DateTime)
         /// </summary>
         public async Task<IEnumerable<Customer>> FilterCustomersAsync(string? address, int? birthYear)
         {
