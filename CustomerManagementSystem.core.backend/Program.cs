@@ -4,15 +4,23 @@ using CustomerManagementSystem.core.backend.Repositories.Implement;
 using CustomerManagementSystem.core.backend.Repositories.Interface;
 using CustomerManagementSystem.core.backend.Services.Implement;
 using CustomerManagementSystem.core.backend.Services.Interface;
+using CustomerManagementSystem.core.backend.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllers();
+// Add services to the container with global "api/v1" prefix
+builder.Services.AddControllers(options =>
+{
+    options.Conventions.Add(new RoutePrefixConvention(
+            new RouteAttribute("api/v1")
+        )
+    );
+});
 
 // Swagger / OpenAPI Configuration
 builder.Services.AddEndpointsApiExplorer();

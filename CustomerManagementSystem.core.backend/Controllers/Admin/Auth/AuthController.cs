@@ -8,11 +8,11 @@ using Microsoft.IdentityModel.Tokens;
 namespace CustomerManagementSystem.core.backend.Controllers.Admin.Auth
 {
     /// <summary>
-    /// API api/admin/auth
-    /// xử lý đăng nhập, phân quyền, refresh token và đăng xuất
+    /// API: api/v1/admin/auth
+    /// Xử lý đăng nhập, phân quyền, refresh token và đăng xuất
     /// </summary>
     [ApiController]
-    [Route("api/admin/auth")]
+    [Route("admin/auth")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;

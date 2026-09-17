@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace CustomerManagementSystem.core.backend.Controllers.Admin
 {
     /// <summary>
-    /// Customer Data Controller: /api/admin/customers
+    /// Customer Data Controller: api/v1/admin/customers
     /// Hiển thị danh sách khách hàng trong trang admin
     /// </summary>
     [Authorize]
     [ApiController]
-    [Route("api/admin/customers")]
+    [Route("admin/customers")]
     public class CustomerDataController : ControllerBase
     {
         private readonly ICustomerService _customerService;

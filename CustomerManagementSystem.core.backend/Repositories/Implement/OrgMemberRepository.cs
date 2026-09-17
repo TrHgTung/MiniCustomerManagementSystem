@@ -54,7 +54,7 @@ namespace CustomerManagementSystem.core.backend.Repositories.Implement
         {
             _context.OrgMembers.Update(member);
             var result = await _context.SaveChangesAsync();
-            if (result)
+            if (result > 0)
             {
                 return true;
             }
