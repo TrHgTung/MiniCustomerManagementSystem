@@ -86,10 +86,10 @@ builder.Services.AddAuthentication(options =>
 // Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
-    // Role == "2": Quản trị viên (Admin / Super Admin)
+    // Role == "2": SA only thôi
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("2"));
-    // Role == "1" hoặc "2": Nhân viên hoặc Quản trị viên
-    options.AddPolicy("StaffOrAdmin", policy => policy.RequireRole("1", "2"));
+    // cả 2 (SA + manager)
+    options.AddPolicy("ManagerOrAdmin", policy => policy.RequireRole("1", "2"));
 });
 
 // Dependency Injection: Repositories

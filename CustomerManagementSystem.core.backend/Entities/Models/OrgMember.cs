@@ -16,7 +16,7 @@ namespace CustomerManagementSystem.core.backend.Entities.Models
 
         [Required]
         [StringLength(128)]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Email không đúng định dạng.")]
         public string OrgEmail { get; set; } // Email
 
         [Required]

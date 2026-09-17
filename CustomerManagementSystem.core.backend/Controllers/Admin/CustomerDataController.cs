@@ -1,13 +1,15 @@
 using CustomerManagementSystem.core.backend.Data.DTO.Customer;
 using CustomerManagementSystem.core.backend.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CustomerManagementSystem.core.backend.Controllers.Admin
 {
     /// <summary>
-    /// Customer Data Controller: GET /api/admin/customers
+    /// Customer Data Controller: /api/admin/customers
     /// Hiển thị danh sách khách hàng trong trang admin
     /// </summary>
+    [Authorize]
     [ApiController]
     [Route("api/admin/customers")]
     public class CustomerDataController : ControllerBase
@@ -116,8 +118,9 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
         }
 
         /// <summary>
-        /// xóa KH
+        /// xóa KH (Chỉ dành cho Quản trị viên - Role == "2")
         /// </summary>
+        [Authorize(Roles = "2")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
