@@ -15,11 +15,13 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
     public class CustomerService : ICustomerService
     {
         private readonly ICustomerRepository _customerRepository;
+        private readonly ISendEmailService _sendEmailService;
         private readonly ILogger<CustomerService> _logger;
 
-        public CustomerService(ICustomerRepository customerRepository, ILogger<CustomerService> logger)
+        public CustomerService(ICustomerRepository customerRepository, ISendEmailService sendEmailService, ILogger<CustomerService> logger)
         {
             _customerRepository = customerRepository;
+            _sendEmailService = sendEmailService;
             _logger = logger;
         }
 
@@ -184,6 +186,46 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
         {
             var customers = await _customerRepository.GetPendingCustomersAsync();
             return customers.Select(MapToDto);
+        }
+
+        /// <summary>
+        /// Tiếp nhận và lưu thông tin biểu mẫu tư vấn do khách hàng gửi từ Client/Trang chủ,
+        /// đồng thời gửi email phản hồi xác nhận tự động.
+        /// </summary>
+        public async Task<CustomerDto> SubmitConsultationFormAsync(CustomerFormDto formDto)
+        {
+            // Kiểm tra email đã tồn tại hay chưa
+            if (await _customerRepository.ExistsByEmailAsync(formDto.CustomerEmail))
+            {
+                throw new InvalidOperationException($"Email '{formDto.CustomerEmail}' đã được đăng ký trong hệ thống.");
+            }
+
+            var customer = new Customer
+            {
+                CustomerId = Guid.NewGuid().ToString(),
+                CustomerName = formDto.CustomerName.Trim(),
+                CustomerEmail = formDto.CustomerEmail.Trim().ToLowerInvariant(),
+                CustomerPhone = formDto.CustomerPhone.Trim(),
+                CustomerBirth = formDto.CustomerBirth,
+                CustomerAddress = formDto.CustomerAddress.Trim(),
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var createdCustomer = await _customerRepository.CreateCustomerAsync(customer);
+            _logger.LogInformation("Đã tiếp nhận và lưu thông tin form tư vấn cho KH: {CustomerId} ({Email})", createdCustomer.CustomerId, createdCustomer.CustomerEmail);
+
+            // Gửi email phản hồi tự động đến khách hàng
+            try
+            {
+                await _sendEmailService.SendConsultationConfirmationEmailAsync(createdCustomer.CustomerEmail, createdCustomer.CustomerName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi xảy ra khi gửi email xác nhận cho KH: {Email}. Dữ liệu KH đã được lưu an toàn.", createdCustomer.CustomerEmail);
+            }
+
+            return MapToDto(createdCustomer);
         }
 
         /// <summary>

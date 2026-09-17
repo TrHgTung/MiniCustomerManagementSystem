@@ -11,5 +11,6 @@ namespace CustomerManagementSystem.core.backend.Services.Interface
         Task<bool> DeleteCustomerAsync(string customerId);
         Task<bool> ApproveCustomerAsync(string customerId);
         Task<IEnumerable<CustomerDto>> GetPendingCustomersAsync();
+        Task<CustomerDto> SubmitConsultationFormAsync(CustomerFormDto formDto);
     }
 }

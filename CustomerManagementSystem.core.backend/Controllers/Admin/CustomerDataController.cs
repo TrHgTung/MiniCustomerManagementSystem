@@ -28,23 +28,43 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
         }
 
         /// <summary>
-        /// lấy toàn bộ danh sách KH
+        /// lấy danh sách KH
+        /// SA (Role = "2"): xem toàn bộ KH
+        /// Manager (Role = "1"): chỉ xem các KH có isActive = true
         /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomerDto>>> GetAll()
         {
+            var userRole = GetCurrentUserRole();
             var customers = await _customerService.GetAllCustomersAsync();
+
+            if (userRole == "1")
+            {
+                customers = customers.Where(c => c.IsActive);
+            }
+
             return Ok(customers);
         }
 
         /// <summary>
         /// thông tin chi tiết 1 KH
+        /// SA (Role = "2"): xem được mọi KH
+        /// Manager (Role = "1"): chỉ xem được KH có isActive = true
         /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<CustomerDto>> GetById(string id)
         {
             var customer = await _customerService.GetCustomerByIdAsync(id);
             if (customer == null)
+            {
+                return NotFound(new
+                {
+                    message = $"Không tìm thấy KH với mã '{id}'."
+                });
+            }
+
+            var userRole = GetCurrentUserRole();
+            if (userRole == "1" && !customer.IsActive)
             {
                 return NotFound(new
                 {
