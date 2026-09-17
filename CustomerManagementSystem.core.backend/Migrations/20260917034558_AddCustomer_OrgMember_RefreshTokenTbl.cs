@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CustomerManagementSystem.core.backend.Migrations
 {
     /// <inheritdoc />
-    public partial class AddCustomerAndOrgMemberTbl : Migration
+    public partial class AddCustomer_OrgMember_RefreshTokenTbl : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,8 +15,7 @@ namespace CustomerManagementSystem.core.backend.Migrations
                 name: "Customers",
                 columns: table => new
                 {
-                    CustomerId = table.Column<int>(type: "int", maxLength: 128, nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CustomerId = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     CustomerName = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     CustomerEmail = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     CustomerPhone = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: false),
@@ -34,8 +33,7 @@ namespace CustomerManagementSystem.core.backend.Migrations
                 name: "OrgMembers",
                 columns: table => new
                 {
-                    OrgId = table.Column<int>(type: "int", maxLength: 128, nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrgId = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     OrgName = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     OrgEmail = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     OrgPhone = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: false),
@@ -48,6 +46,21 @@ namespace CustomerManagementSystem.core.backend.Migrations
                 {
                     table.PrimaryKey("PK_OrgMembers", x => x.OrgId);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "RefreshTokens",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", maxLength: 128, nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Token = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
+                });
         }
 
         /// <inheritdoc />
@@ -58,6 +71,9 @@ namespace CustomerManagementSystem.core.backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "OrgMembers");
+
+            migrationBuilder.DropTable(
+                name: "RefreshTokens");
         }
     }
 }
