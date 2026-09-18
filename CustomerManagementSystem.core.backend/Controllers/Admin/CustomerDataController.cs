@@ -151,23 +151,33 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
         }
 
         /// <summary>
-        /// xóa KH
+        /// xóa KH:
+        /// SA (Role="2"): xóa vĩnh viễn khỏi hệ thống
+        /// Manager (Role="1"): yêu cầu xóa (đánh dấu DeletedAt, chờ SA duyệt)
         /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             try
             {
-                var deleted = await _customerService.DeleteCustomerAsync(id);
+                var userRole = User.GetCurrentUserRole();
+                var deleted = await _customerService.DeleteCustomerAsync(id, userRole);
                 if (!deleted)
                 {
                     return NotFound(new {
                         message = $"Không tìm thấy KH '{id}'"
                     });
                 }
+                string message;
+                if(userRole == "2") {
+                    message = "Xóa vĩnh viễn thành công";
+                }
+                else {
+                    message = "Yêu cầu xóa đã được gửi, chờ SA duyệt";
+                }
 
                 return Ok(new {
-                    message = "Xóa thành công"
+                    message
                 });
             }
             catch (Exception ex)
@@ -215,7 +225,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
         }
 
         /// <summary>
-        /// lấy danh sách KH đang chờ duyệt (isActive = false)
+        /// lấy danh sách KH đang chờ duyệt tạo mới / sửa (isActive = false, chưa bị đánh dấu xóa)
         /// Chỉ dành cho SA (Role = "2")
         /// </summary>
         [Authorize(Policy = "AdminOnly")]
@@ -223,6 +233,18 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
         public async Task<ActionResult<IEnumerable<CustomerDto>>> GetPending()
         {
             var customers = await _customerService.GetPendingCustomersAsync();
+            return Ok(customers);
+        }
+
+        /// <summary>
+        /// lấy danh sách KH đang chờ duyệt xóa (DeletedAt != null)
+        /// Chỉ dành cho SA (Role = "2")
+        /// </summary>
+        [Authorize(Policy = "AdminOnly")]
+        [HttpGet("pending-deletion")]
+        public async Task<ActionResult<IEnumerable<CustomerDto>>> GetPendingDeletion()
+        {
+            var customers = await _customerService.GetPendingDeletionCustomersAsync();
             return Ok(customers);
         }
     }

@@ -8,9 +8,10 @@ namespace CustomerManagementSystem.core.backend.Services.Interface
         Task<CustomerDto?> GetCustomerByIdAsync(string customerId);
         Task<CustomerDto> CreateCustomerAsync(CreateCustomerDto createDto, string userRole);
         Task<bool> UpdateCustomerAsync(string customerId, UpdateCustomerDto updateDto, string userRole);
-        Task<bool> DeleteCustomerAsync(string customerId);
+        Task<bool> DeleteCustomerAsync(string customerId, string userRole);
         Task<bool> ApproveCustomerAsync(string customerId);
         Task<IEnumerable<CustomerDto>> GetPendingCustomersAsync();
+        Task<IEnumerable<CustomerDto>> GetPendingDeletionCustomersAsync();
         Task<CustomerDto> SubmitConsultationFormAsync(CustomerFormDto formDto);
         Task<IEnumerable<CustomerDto>> SearchCustomersAsync(string keyword, string userRole);
         Task<IEnumerable<CustomerDto>> FilterCustomersAsync(string? address, int? birthYear, string userRole);
