@@ -8,10 +8,10 @@ Hệ thống Quản lý Thông tin Khách hàng phân quyền hai cấp: **Super
 ## 1. Kiến Trúc & Công Nghệ Sử Dụng
 
 ### Backend (`CustomerManagementSystem.core.backend`)
-- **Framework:** .NET 8.0 (ASP.NET Core Web API)
+- **Framework:** .NET 9 (ASP.NET Core Web API)
 - **Kiến trúc:** Repository - Service Layer
 - **Cơ sở dữ liệu:** Microsoft SQL Server
-- **ORM:** EF Core 8.0 (Code-First với Migrations)
+- **ORM:** EF Core 9 (Code-First với Migrations)
 - **Xác thực & Phân quyền:** JWT Bearer Token (Access Token & Refresh Token)
 - **Thư viện xuất Excel:** ClosedXML
 - **SendMail**: System.Net.Mail (smtp.gmail.com)
@@ -19,7 +19,7 @@ Hệ thống Quản lý Thông tin Khách hàng phân quyền hai cấp: **Super
 - **Địa chỉ mặc định:** `http://localhost:4401` (Swagger: `http://localhost:4401/swagger`)
 
 ### Frontend (`CustomerManagementSystem.core.frontend`)
-- **Framework:** Blazor WebAssembly (.NET 8.0)
+- **Framework:** Blazor WebAssembly (.NET 9)
 - **Giao diện:** HTML5, CSS3, Bootstrap 5 (Thiết kế đơn giản, dùng sẵn class responsive)
 - **Quản lý phiên:** Custom AuthenticationStateProvider kết hợp Browser LocalStorage
 - **Địa chỉ mặc định:** `http://localhost:4402`
@@ -30,7 +30,7 @@ Hệ thống Quản lý Thông tin Khách hàng phân quyền hai cấp: **Super
 
 Trước khi bắt đầu, máy tính cần cài đặt các công cụ sau:
 
-1. **.NET 8.0 SDK**: [Tải tại Microsoft](https://dotnet.microsoft.com/download/dotnet/8.0)
+1. **.NET 9.0 SDK**: [Tải tại Microsoft](https://dotnet.microsoft.com/download/dotnet/9.0)
    - Kiểm tra phiên bản bằng lệnh:
      ```bash
      dotnet --version
@@ -186,7 +186,7 @@ Hệ thống định nghĩa hai cấp phân quyền trong hệ thống quản tr
 
 ```text
 CustomerManagementSystem/
-├── CustomerManagementSystem.core.backend/     # Backend Web API (.NET 8.0)
+├── CustomerManagementSystem.core.backend/     # Backend Web API (.NET 9.0)
 │   ├── Configurations/                       # Cấu hình tiền tố route, AutoMapper...
 │   ├── Controllers/Admin/                    # API Controllers (Auth, Customers, Export, Administrative)
 │   ├── Data/
@@ -251,3 +251,16 @@ CustomerManagementSystem/
   dotnet tool install --global dotnet-ef
   ```
   Sau đó khởi động lại Terminal.
+
+### 5. Lỗi không gửi được email
+- **Khắc phục:** Hãy cấu hình SMTP trong appsettings.json của source backend (CustomerManagementSystem.core.backend/appsettings.json)
+```json
+    "Smtp": {
+      "SenderEmail": "[EMAIL_ADDRESS]",
+      "Host": "smtp.gmail.com",
+      "Port": 587,
+      "EnableSsl": true,
+      "Username": "[EMAIL_ADDRESS]",
+      "Password": "your-gmail-app-password"
+    }
+```
