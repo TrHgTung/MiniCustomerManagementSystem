@@ -178,6 +178,7 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
 
         /// <summary>
         /// SA duyệt approve cho KH đang chờ (isActive: false -> true)
+        /// Nếu KH có đang bị đánh dấu chờ xóa (DeletedAt != null) thì cũng khôi phục lại (ko xóa nữa) ngay sau khi Approve
         /// </summary>
         public async Task<bool> ApproveCustomerAsync(string customerId)
         {
@@ -187,12 +188,13 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
                 return false;
             }
 
-            if (customer.IsActive)
+            if (customer.IsActive && customer.DeletedAt == null)
             {
                 throw new InvalidOperationException("Yêu cầu này đã được duyệt trước đó rồi");
             }
 
             customer.IsActive = true;
+            customer.DeletedAt = null;
             var result = await _customerRepository.UpdateCustomerAsync(customer);
             if (result)
             {
