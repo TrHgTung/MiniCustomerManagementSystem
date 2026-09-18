@@ -19,8 +19,21 @@ namespace CustomerManagementSystem.core.frontend.Services.Implementations
             var response = await _httpClient.PostAsJsonAsync("customer/form", formDto);
             if (!response.IsSuccessStatusCode)
             {
-                var error = await response.Content.ReadAsStringAsync();
-                throw new HttpRequestException(string.IsNullOrWhiteSpace(error) ? "Gửi biểu mẫu thất bại." : error, null, response.StatusCode);
+                string errorMessage = "Gửi thông tin không thành công. Vui lòng thử lại sau.";
+                try
+                {
+                    var errorObj = await response.Content.ReadFromJsonAsync<ApiMessageResponse>();
+                    if (!string.IsNullOrWhiteSpace(errorObj?.Message))
+                    {
+                        errorMessage = errorObj.Message;
+                    }
+                }
+                catch
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrWhiteSpace(raw)) errorMessage = raw;
+                }
+                throw new Exception(errorMessage);
             }
 
             var result = await response.Content.ReadFromJsonAsync<ApiResponse<CustomerDto>>();

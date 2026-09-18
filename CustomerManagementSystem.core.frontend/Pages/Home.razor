@@ -1,7 +1,182 @@
-﻿@page "/"
+@page "/"
+@inject ICustomerService CustomerService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Đăng ký thông tin tư vấn</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
 
-Welcome to your new app.
+            <div class="card border">
+                <div class="card-header bg-light border-bottom py-3">
+                    <h4 class="mb-1 text-primary">Biểu Mẫu Thông Tin Khách Hàng</h4>
+                    <small class="text-muted">Vui lòng điền thông tin của bạn để chúng tôi có thể tư vấn dịch vụ tốt nhất dành cho bạn</small>
+                </div>
+
+                <div class="card-body p-4">
+
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success" role="alert">
+                            <h5 class="alert-heading mb-2">Tiếp nhận thành công</h5>
+                            <p class="mb-3">@successMessage</p>
+                        </div>
+                    }
+                    else
+                    {
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                <strong>Thông báo lỗi:</strong> @errorMessage
+                            </div>
+                        }
+
+                        <EditForm Model="@customerForm" OnValidSubmit="HandleSubmit">
+                            <DataAnnotationsValidator />
+
+                            <!-- Họ và tên -->
+                            <div class="mb-3">
+                                <label for="customerName" class="form-label fw-bold">
+                                    Họ và tên <span class="text-danger">*</span>
+                                </label>
+                                <InputText id="customerName"
+                                           class="form-control"
+                                           placeholder="Nhập họ và tên"
+                                           @bind-Value="customerForm.CustomerName" />
+                                <ValidationMessage For="@(() => customerForm.CustomerName)" class="text-danger small" />
+                            </div>
+
+                            <!-- Địa chỉ Email -->
+                            <div class="mb-3">
+                                <label for="customerEmail" class="form-label fw-bold">
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                <InputText id="customerEmail"
+                                           type="email"
+                                           class="form-control"
+                                           placeholder="Nhập địa chỉ email"
+                                           @bind-Value="customerForm.CustomerEmail" />
+                                <ValidationMessage For="@(() => customerForm.CustomerEmail)" class="text-danger small" />
+                            </div>
+
+                            <!-- Số điện thoại -->
+                            <div class="mb-3">
+                                <label for="customerPhone" class="form-label fw-bold">
+                                    Số điện thoại <span class="text-danger">*</span>
+                                </label>
+                                <InputText id="customerPhone"
+                                           type="tel"
+                                           class="form-control"
+                                           placeholder="Nhập số điện thoại (ví dụ: 0912345678)"
+                                           @bind-Value="customerForm.CustomerPhone" />
+                                <ValidationMessage For="@(() => customerForm.CustomerPhone)" class="text-danger small" />
+                            </div>
+
+                            <!-- Ngày sinh -->
+                            <div class="mb-3">
+                                <label for="customerBirth" class="form-label fw-bold">
+                                    Ngày sinh <span class="text-danger">*</span>
+                                </label>
+                                <InputDate id="customerBirth"
+                                           class="form-control"
+                                           @bind-Value="customerForm.CustomerBirth" />
+                                <ValidationMessage For="@(() => customerForm.CustomerBirth)" class="text-danger small" />
+                            </div>
+
+                            <!-- Nơi sinh sống / Tỉnh thành -->
+                            <div class="mb-4">
+                                <label for="customerAddress" class="form-label fw-bold">
+                                    Nơi sinh sống (Tỉnh / Thành phố) <span class="text-danger">*</span>
+                                </label>
+                                <InputSelect id="customerAddress" class="form-select" @bind-Value="customerForm.CustomerAddress">
+                                    <option value="">-- Chọn Tỉnh / Thành phố --</option>
+                                    @foreach (var province in Provinces)
+                                    {
+                                        <option value="@province">@province</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => customerForm.CustomerAddress)" class="text-danger small" />
+                            </div>
+
+                            <!-- Nút hành động -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                    @if (isSubmitting)
+                                    {
+                                        <span>Đang gửi thông tin...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Gửi thông tin đăng ký</span>
+                                    }
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" @onclick="ResetForm" disabled="@isSubmitting">
+                                    Xóa và nhập lại
+                                </button>
+                            </div>
+                        </EditForm>
+                    }
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private CustomerFormDto customerForm = new();
+    private bool isSubmitting = false;
+    private string? errorMessage;
+    private string? successMessage;
+
+    private readonly string[] Provinces = new[]
+    {
+        "Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ",
+        "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu",
+        "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước",
+        "Bình Thuận", "Cà Mau", "Cao Bằng", "Đắk Lắk", "Đắk Nông",
+        "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Giang",
+        "Hà Nam", "Hà Tĩnh", "Hải Dương", "Hậu Giang", "Hòa Bình",
+        "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu",
+        "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định",
+        "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên",
+        "Quảng Bình", "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị",
+        "Sóc Trăng", "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên",
+        "Thanh Hóa", "Thừa Thiên Huế", "Tiền Giang", "Trà Vinh", "Tuyên Quang",
+        "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"
+    };
+
+    private async Task HandleSubmit()
+    {
+        errorMessage = null;
+        successMessage = null;
+        isSubmitting = true;
+
+        try
+        {
+            var response = await CustomerService.SubmitConsultationFormAsync(customerForm);
+            successMessage = !string.IsNullOrWhiteSpace(response.Message)
+                ? response.Message
+                : "Chúng tôi đã nhận được thông tin của bạn và sẽ sớm liên hệ tư vấn dịch vụ tốt nhất. Vui lòng check email xác nhận từ chúng tôi";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void ResetForm()
+    {
+        customerForm = new CustomerFormDto
+        {
+            CustomerBirth = DateTime.Today.AddYears(-20)
+        };
+        errorMessage = null;
+        successMessage = null;
+    }
+}
