@@ -67,7 +67,7 @@
                     <label class="form-label small fw-bold mb-1">Nơi sinh sống (Tỉnh/Thành):</label>
                     <select class="form-select" @bind="filterAddress">
                         <option value="">-- Tất cả Tỉnh / Thành --</option>
-                        @foreach (var p in Provinces)
+                        @foreach (var p in ProvinceConstants.List)
                         {
                             <option value="@p">@p</option>
                         }
