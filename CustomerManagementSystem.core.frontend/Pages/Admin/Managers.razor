@@ -1,0 +1,418 @@
+@page "/admin/managers"
+@attribute [Authorize]
+@inject IAuthService AuthService
+@inject IAdministrativeService AdministrativeService
+@inject NavigationManager Navigation
+
+<PageTitle>Quản lý tài khoản Manager</PageTitle>
+
+<div class="container-fluid py-3">
+    <!-- TIÊU ĐỀ TRANG -->
+    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+        <div>
+            <h4 class="mb-0 text-primary">Quản Lý Tài Khoản Quản Lý (Manager)</h4>
+            <small class="text-muted">
+                Xin chào: <strong>@(currentUser?.OrgName ?? "Quản trị viên")</strong> | 
+                Vai trò: <strong>SA account (Toàn quyền quản trị)</strong>
+            </small>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-primary btn-sm" @onclick="NavigateToCustomers">
+                Quản lý Khách hàng
+            </button>
+            <button type="button" class="btn btn-outline-danger btn-sm" @onclick="HandleLogout">
+                Đăng xuất
+            </button>
+        </div>
+    </div>
+
+    <!-- THÔNG BÁO LỖI / THÀNH CÔNG -->
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show py-2 mb-3" role="alert">
+            <strong>Lỗi:</strong> @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show py-2 mb-3" role="alert">
+            <strong>Thành công:</strong> @successMessage
+            <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+        </div>
+    }
+
+    <!-- KIỂM TRA QUYỀN HẠN: CHỈ SA MỚI TRUY CẬP ĐƯỢC -->
+    @if (!isSA)
+    {
+        <div class="alert alert-warning text-center py-4">
+            <strong>Bạn không có quyền truy cập trang này.</strong>
+            <br />
+            <small>Chức năng quản lý tài khoản Manager chỉ dành riêng cho Quản trị viên cấp cao (SA).</small>
+            <br />
+            <button type="button" class="btn btn-outline-primary btn-sm mt-2" @onclick="NavigateToCustomers">
+                Quay lại Danh sách KH
+            </button>
+        </div>
+    }
+    else
+    {
+        <!-- BẢNG DANH SÁCH TÀI KHOẢN MANAGER -->
+        <div class="card border">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                <div>
+                    <strong>Danh Sách Tài Khoản Manager</strong>
+                    <span class="badge bg-secondary ms-2">@managers.Count tài khoản</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="LoadManagersAsync" disabled="@isLoading">
+                        Tải lại
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm" @onclick="OpenCreateModal">
+                        Thêm Mới Manager
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                @if (isLoading)
+                {
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted mb-0">Đang tải danh sách Manager...</p>
+                    </div>
+                }
+                else if (managers.Count == 0)
+                {
+                    <div class="text-center py-5 text-muted">
+                        <p class="mb-2">Chưa có tài khoản Manager nào trong hệ thống.</p>
+                        <button type="button" class="btn btn-outline-primary btn-sm" @onclick="OpenCreateModal">
+                            Tạo tài khoản Manager đầu tiên
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 50px;" class="text-center">STT</th>
+                                    <th>Mã Quản lý</th>
+                                    <th>Họ và tên</th>
+                                    <th>Email đăng nhập</th>
+                                    <th>Số điện thoại</th>
+                                    <th class="text-center">Vai trò</th>
+                                    <th class="text-center">Trạng thái</th>
+                                    <th>Ngày tạo</th>
+                                    <th class="text-center" style="min-width: 140px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < managers.Count; i++)
+                                {
+                                    var m = managers[i];
+                                    var index = i + 1;
+                                    <tr>
+                                        <td class="text-center">@index</td>
+                                        <td><strong>@m.OrgId</strong></td>
+                                        <td>@m.OrgName</td>
+                                        <td>@m.OrgEmail</td>
+                                        <td>@m.OrgPhone</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info text-dark">Manager</span>
+                                        </td>
+                                        <td class="text-center">
+                                            @if (m.IsActive)
+                                            {
+                                                <span class="badge bg-success">Đang hoạt động</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Đã vô hiệu</span>
+                                            }
+                                        </td>
+                                        <td>@m.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td class="text-center">
+                                            @if (m.IsActive)
+                                            {
+                                                <button type="button"
+                                                        class="btn btn-outline-danger btn-sm"
+                                                        @onclick="() => OpenDeactivateModal(m)"
+                                                        title="Vô hiệu hóa tài khoản Manager này">
+                                                    Vô hiệu hóa
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="button" class="btn btn-secondary btn-sm" disabled>
+                                                    Đã khóa
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<!-- MODAL THÊM MỚI MANAGER -->
+@if (showCreateModal)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border">
+                <div class="modal-header bg-light py-2">
+                    <h5 class="modal-title text-primary">Thêm Mới Tài Khoản Manager</h5>
+                    <button type="button" class="btn-close" @onclick="CloseCreateModal" disabled="@isSubmittingModal"></button>
+                </div>
+                <EditForm Model="@createModel" OnValidSubmit="HandleCreateSubmit">
+                    <DataAnnotationsValidator />
+                    <div class="modal-body">
+                        <div class="alert alert-info py-1 small mb-3">
+                            Tài khoản Manager sau khi tạo sẽ ở trạng thái <strong>Đang hoạt động</strong> và có thể đăng nhập bằng Email và Mật khẩu dưới đây.
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Họ và tên <span class="text-danger">*</span></label>
+                            <InputText class="form-control" placeholder="Nhập họ và tên Manager" @bind-Value="createModel.OrgName" />
+                            <ValidationMessage For="@(() => createModel.OrgName)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Email đăng nhập <span class="text-danger">*</span></label>
+                            <InputText class="form-control" placeholder="example@company.com" @bind-Value="createModel.OrgEmail" />
+                            <ValidationMessage For="@(() => createModel.OrgEmail)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Số điện thoại <span class="text-danger">*</span></label>
+                            <InputText class="form-control" placeholder="09xxxxxxxx" @bind-Value="createModel.OrgPhone" />
+                            <ValidationMessage For="@(() => createModel.OrgPhone)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Mật khẩu ban đầu <span class="text-danger">*</span></label>
+                            <InputText type="password" class="form-control" placeholder="Tối thiểu 6 ký tự" @bind-Value="createModel.OrgPassword" />
+                            <ValidationMessage For="@(() => createModel.OrgPassword)" class="text-danger small" />
+                        </div>
+                    </div>
+                    <div class="modal-footer py-2 bg-light">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseCreateModal" disabled="@isSubmittingModal">
+                            Hủy bỏ
+                        </button>
+                        <button type="submit" class="btn btn-primary" disabled="@isSubmittingModal">
+                            @if (isSubmittingModal)
+                            {
+                                <span>Đang tạo tài khoản...</span>
+                            }
+                            else
+                            {
+                                <span>Tạo tài khoản</span>
+                            }
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- MODAL XÁC NHẬN VÔ HIỆU HÓA MANAGER -->
+@if (showDeactivateModal && targetManager != null)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border">
+                <div class="modal-header bg-light py-2">
+                    <h5 class="modal-title text-danger">Xác Nhận Vô Hiệu Hóa Tài Khoản Manager</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDeactivateModal" disabled="@isSubmittingModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2">Bạn có chắc chắn muốn <strong>vô hiệu hóa</strong> tài khoản Manager sau?</p>
+                    <ul class="list-unstyled ps-2 border-start border-3 border-danger py-1 mb-2 bg-light">
+                        <li><strong>Mã Quản lý:</strong> @targetManager.OrgId</li>
+                        <li><strong>Họ tên:</strong> @targetManager.OrgName</li>
+                        <li><strong>Email:</strong> @targetManager.OrgEmail</li>
+                        <li><strong>Số ĐT:</strong> @targetManager.OrgPhone</li>
+                    </ul>
+                    <div class="alert alert-danger py-1 small mb-0">
+                        <strong>Cảnh báo:</strong> Sau khi bị vô hiệu hóa, tài khoản Manager này sẽ <strong>không thể đăng nhập</strong> vào hệ thống.
+                    </div>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDeactivateModal" disabled="@isSubmittingModal">
+                        Không, Hủy bỏ
+                    </button>
+                    <button type="button" class="btn btn-danger" @onclick="HandleDeactivateConfirm" disabled="@isSubmittingModal">
+                        @if (isSubmittingModal)
+                        {
+                            <span>Đang xử lý...</span>
+                        }
+                        else
+                        {
+                            <span>Xác nhận vô hiệu hóa</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private OrgMemberDto? currentUser;
+    private bool isSA = false;
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+    private List<ManagerDto> managers = new();
+    private bool isLoading = true;
+
+    private string? errorMessage;
+    private string? successMessage;
+
+    // Quản lý trạng thái Modal
+    private bool showCreateModal = false;
+    private bool showDeactivateModal = false;
+    private bool isSubmittingModal = false;
+
+    private CreateManagerDto createModel = new();
+    private ManagerDto? targetManager;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthService.GetCurrentUserInfoAsync();
+        isSA = currentUser.IsSuperAdmin();
+
+        if (!isSA && AuthStateTask != null)
+        {
+            var authState = await AuthStateTask;
+            isSA = authState.User.IsSuperAdmin();
+        }
+
+        if (isSA)
+        {
+            await LoadManagersAsync();
+        }
+        else
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadManagersAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var result = await AdministrativeService.GetAllManagersAsync();
+            managers = result.ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Lỗi khi tải danh sách Manager: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // === THÊM MỚI MANAGER ===
+    private void OpenCreateModal()
+    {
+        createModel = new CreateManagerDto();
+        errorMessage = null;
+        showCreateModal = true;
+    }
+
+    private void CloseCreateModal()
+    {
+        showCreateModal = false;
+        isSubmittingModal = false;
+    }
+
+    private async Task HandleCreateSubmit()
+    {
+        isSubmittingModal = true;
+        errorMessage = null;
+
+        try
+        {
+            var created = await AdministrativeService.CreateManagerAsync(createModel);
+            CloseCreateModal();
+            successMessage = $"Tạo mới tài khoản Manager '{created.OrgName}' ({created.OrgEmail}) thành công!";
+            await LoadManagersAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isSubmittingModal = false;
+        }
+    }
+
+    // === VÔ HIỆU HÓA / XÓA MANAGER ===
+    private void OpenDeactivateModal(ManagerDto manager)
+    {
+        targetManager = manager;
+        errorMessage = null;
+        showDeactivateModal = true;
+    }
+
+    private void CloseDeactivateModal()
+    {
+        showDeactivateModal = false;
+        targetManager = null;
+        isSubmittingModal = false;
+    }
+
+    private async Task HandleDeactivateConfirm()
+    {
+        if (targetManager == null) return;
+
+        isSubmittingModal = true;
+        errorMessage = null;
+
+        try
+        {
+            var msg = await AdministrativeService.DeactivateManagerAsync(targetManager.OrgId);
+            var managerName = targetManager.OrgName;
+            CloseDeactivateModal();
+            successMessage = !string.IsNullOrWhiteSpace(msg) ? msg : $"Đã vô hiệu hóa tài khoản Manager '{managerName}' thành công.";
+            await LoadManagersAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isSubmittingModal = false;
+        }
+    }
+
+    private void NavigateToCustomers()
+    {
+        Navigation.NavigateTo("admin/customers");
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("admin/login");
+    }
+}
