@@ -229,7 +229,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
         /// Chỉ dành cho SA (Role = "2")
         /// </summary>
         [Authorize(Policy = "AdminOnly")]
-        [HttpGet("pending")]
+        [HttpGet("pending-updation")]
         public async Task<ActionResult<IEnumerable<CustomerDto>>> GetPending()
         {
             var customers = await _customerService.GetPendingCustomersAsync();

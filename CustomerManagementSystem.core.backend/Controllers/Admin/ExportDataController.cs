@@ -35,7 +35,6 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
         /// </summary>
         /// <param name="filter">Khoảng thời gian FromDate và ToDate</param>
         /// <returns>File Excel .xlsx tải về</returns>
-        [HttpGet]
         [HttpGet("customers")]
         public async Task<IActionResult> ExportCustomers([FromQuery] ExportCustomerFilterDto filter)
         {
