@@ -35,5 +35,7 @@ namespace CustomerManagementSystem.core.backend.Entities.Models
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Thoi diem luu KH
+
+        public DateTime? DeletedAt { get; set; } // Thoi diem danh dau cho xoa boi Manager (null nghia la binh thuong)
     }
 }

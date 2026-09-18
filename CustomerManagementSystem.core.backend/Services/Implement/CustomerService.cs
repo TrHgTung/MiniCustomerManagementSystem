@@ -141,16 +141,39 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
         }
 
         /// <summary>
-        /// xóa KH
+        /// xóa KH:
+        /// - SA (Role="2"): xóa vĩnh viễn khỏi hệ thống
+        /// - Manager (Role="1"): yêu cầu xóa (đánh dấu DeletedAt, chờ SA duyệt)
         /// </summary>
-        public async Task<bool> DeleteCustomerAsync(string customerId)
+        public async Task<bool> DeleteCustomerAsync(string customerId, string userRole)
         {
-            var result = await _customerRepository.DeleteCustomerAsync(customerId);
-            if (result)
+            if (userRole == "2")
             {
-                _logger.LogInformation("Xóa Id KH thành công: {CustomerId}", customerId);
+                var result = await _customerRepository.DeleteCustomerAsync(customerId);
+                if (result)
+                {
+                    _logger.LogInformation("SA đã xóa vĩnh viễn KH: {CustomerId}", customerId);
+                }
+                return result;
             }
-            return result;
+            else
+            {
+                var result = await _customerRepository.SoftDeleteCustomerAsync(customerId);
+                if (result)
+                {
+                    _logger.LogInformation("Manager đã yêu cầu xóa KH (chờ SA duyệt): {CustomerId}", customerId);
+                }
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// lấy danh sách KH đang chờ xóa (DeletedAt != null) - Dành riêng cho SA
+        /// </summary>
+        public async Task<IEnumerable<CustomerDto>> GetPendingDeletionCustomersAsync()
+        {
+            var customers = await _customerRepository.GetPendingDeletionCustomersAsync();
+            return customers.Select(MapToDto);
         }
 
         /// <summary>

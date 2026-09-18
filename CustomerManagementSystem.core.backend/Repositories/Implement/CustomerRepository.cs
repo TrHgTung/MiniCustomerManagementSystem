@@ -24,6 +24,7 @@ namespace CustomerManagementSystem.core.backend.Repositories.Implement
         {
             return await _context.Customers
                 .AsNoTracking()
+                .Where(c => c.DeletedAt == null)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
         }
@@ -81,6 +82,25 @@ namespace CustomerManagementSystem.core.backend.Repositories.Implement
         }
 
         /// <summary>
+        /// yêu cầu xóa KH (Manager): đánh dấu DeletedAt, tạm ngừng isActive
+        /// </summary>
+        public async Task<bool> SoftDeleteCustomerAsync(string customerId)
+        {
+            var customer = await _context.Customers
+                .FirstOrDefaultAsync(c => c.CustomerId == customerId);
+
+            if (customer == null) {
+                return false;
+            }
+
+            customer.DeletedAt = DateTime.UtcNow;
+            customer.IsActive = false;
+
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
+        }
+
+        /// <summary>
         /// kiểm tra xem có customerId nào trùng lặp không
         /// </summary>
         public async Task<bool> ExistsByIdAsync(string customerId)
@@ -104,14 +124,27 @@ namespace CustomerManagementSystem.core.backend.Repositories.Implement
         }
 
         /// <summary>
-        /// lấy danh sách KH đang chờ duyệt (isActive = false)
+        /// lấy danh sách KH đang chờ duyệt tạo mới / sửa (isActive = false và chưa bị đánh dấu xóa)
         /// </summary>
         public async Task<IEnumerable<Customer>> GetPendingCustomersAsync()
         {
             return await _context.Customers
                 .AsNoTracking()
-                .Where(c => !c.IsActive)
+                .Where(c => !c.IsActive && c.DeletedAt == null)
                 .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// lấy danh sách KH đang chờ xóa (DeletedAt != null)
+        /// Chỉ dành cho SA (Role = "2")
+        /// </summary>
+        public async Task<IEnumerable<Customer>> GetPendingDeletionCustomersAsync()
+        {
+            return await _context.Customers
+                .AsNoTracking()
+                .Where(c => c.DeletedAt != null)
+                .OrderByDescending(c => c.DeletedAt)
                 .ToListAsync();
         }
 
@@ -123,14 +156,14 @@ namespace CustomerManagementSystem.core.backend.Repositories.Implement
         {
             return await _context.Customers
                 .AsNoTracking()
-                .Where(c => c.CreatedAt >= fromDate && c.CreatedAt <= toDate)
+                .Where(c => c.DeletedAt == null && c.CreatedAt >= fromDate && c.CreatedAt <= toDate)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
         }
 
         /// <summary>
         /// tìm kiếm KH theo ký tự trùng khớp trong các cột 
-        /// CustomerId, CustomerName, CustomerEmail, CustomerPhone
+        /// CustomerId, CustomerName, CustomerEmail, CustomerPhone (chưa bị đánh dấu xóa)
         /// </summary>
         public async Task<IEnumerable<Customer>> SearchCustomersAsync(string keyword)
         {
@@ -138,12 +171,12 @@ namespace CustomerManagementSystem.core.backend.Repositories.Implement
 
             return await _context.Customers
                 .AsNoTracking()
-                .Where(c =>
+                .Where(c => c.DeletedAt == null && (
                     c.CustomerId.ToLower().Contains(lowerKeyword) ||
                     c.CustomerName.ToLower().Contains(lowerKeyword) ||
                     c.CustomerEmail.ToLower().Contains(lowerKeyword) ||
                     c.CustomerPhone.ToLower().Contains(lowerKeyword)
-                )
+                ))
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
         }
@@ -154,7 +187,7 @@ namespace CustomerManagementSystem.core.backend.Repositories.Implement
         /// </summary>
         public async Task<IEnumerable<Customer>> FilterCustomersAsync(string? address, int? birthYear)
         {
-            var query = _context.Customers.AsNoTracking().AsQueryable();
+            var query = _context.Customers.AsNoTracking().Where(c => c.DeletedAt == null).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(address))
             {
