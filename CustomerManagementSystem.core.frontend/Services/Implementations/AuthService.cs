@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System;
 using CustomerManagementSystem.core.frontend.Auth;
 using CustomerManagementSystem.core.frontend.Models.Auth;
+using CustomerManagementSystem.core.frontend.Models.Common;
 using CustomerManagementSystem.core.frontend.Services.Contracts;
 using CustomerManagementSystem.core.frontend.Services.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -34,10 +35,21 @@ namespace CustomerManagementSystem.core.frontend.Services.Implementations
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                throw new HttpRequestException(string.IsNullOrWhiteSpace(errorContent) 
-                    ? "Đăng nhập không thành công." 
-                    : errorContent, null, response.StatusCode);
+                string errorMessage = "Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin.";
+                try
+                {
+                    var errObj = await response.Content.ReadFromJsonAsync<ApiMessageResponse>();
+                    if (!string.IsNullOrWhiteSpace(errObj?.Message))
+                    {
+                        errorMessage = errObj.Message;
+                    }
+                }
+                catch
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrWhiteSpace(raw)) errorMessage = raw;
+                }
+                throw new Exception(errorMessage);
             }
 
             var authResponse = await response.Content.ReadFromJsonAsync<AuthResponseDto>();

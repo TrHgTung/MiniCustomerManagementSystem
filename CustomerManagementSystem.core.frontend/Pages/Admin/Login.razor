@@ -1,0 +1,113 @@
+@page "/admin/login"
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Đăng nhập Quản trị viên</PageTitle>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6 col-lg-4">
+
+            <div class="card border">
+                <div class="card-header bg-light border-bottom py-3 text-center">
+                    <h4 class="mb-1 text-primary">Đăng Nhập Hệ Thống</h4>
+                    <small class="text-muted">Khu vực dành cho SA và Manager account</small>
+                </div>
+
+                <div class="card-body p-4">
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Lỗi:</strong> @errorMessage
+                        </div>
+                    }
+
+                    <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+                        <DataAnnotationsValidator />
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="orgEmail" class="form-label fw-bold">
+                                Email đăng nhập <span class="text-danger">*</span>
+                            </label>
+                            <InputText id="orgEmail"
+                                       type="email"
+                                       class="form-control"
+                                       placeholder="admin@example.com"
+                                       @bind-Value="loginModel.OrgEmail" />
+                            <ValidationMessage For="@(() => loginModel.OrgEmail)" class="text-danger small" />
+                        </div>
+
+                        <!-- password -->
+                        <div class="mb-4">
+                            <label for="orgPassword" class="form-label fw-bold">
+                                Mật khẩu <span class="text-danger">*</span>
+                            </label>
+                            <InputText id="orgPassword"
+                                       type="password"
+                                       class="form-control"
+                                       placeholder="Nhập mật khẩu"
+                                       @bind-Value="loginModel.OrgPassword" />
+                            <ValidationMessage For="@(() => loginModel.OrgPassword)" class="text-danger small" />
+                        </div>
+
+                        <!-- cta btn -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span>Đang đăng nhập...</span>
+                                }
+                                else
+                                {
+                                    <span>Đăng nhập</span>
+                                }
+                            </button>
+                            <a href="" class="btn btn-outline-secondary">
+                                Quay lại trang chủ
+                            </a>
+                        </div>
+                    </EditForm>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginRequestDto loginModel = new();
+    private bool isSubmitting = false;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // nếu đăng nhập rồi thì auto direct tới trang quản lý KH
+        if (await AuthService.IsAuthenticatedAsync())
+        {
+            Navigation.NavigateTo("admin/customers");
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        errorMessage = null;
+        isSubmitting = true;
+
+        try
+        {
+            await AuthService.LoginAsync(loginModel);
+            Navigation.NavigateTo("admin/customers");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}
