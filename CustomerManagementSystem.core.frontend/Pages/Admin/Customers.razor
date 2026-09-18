@@ -12,7 +12,7 @@
             <h4 class="mb-0 text-primary">Quản lý thông tin Khách Hàng</h4>
             <small class="text-muted">
                 Xin chào: <strong>@(currentUser?.OrgName ?? "Quản trị viên")</strong> | 
-                Vai trò: <strong>@(currentUser?.Role == "2" ? "SA account" : "Manager account")</strong>
+                Vai trò: <strong>@(isSA ? "SA account" : "Manager account")</strong>
             </small>
         </div>
         <div>
@@ -114,7 +114,16 @@
                     </span>
                 }
             </div>
-            <div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-success btn-sm" @onclick="NavigateToExport">
+                    Xuất Excel
+                </button>
+                @if (isSA)
+                {
+                    <button type="button" class="btn btn-outline-danger btn-sm" @onclick="NavigateToPendingDeletion">
+                        Xem danh sách chờ Xóa
+                    </button>
+                }
                 <button type="button" class="btn btn-primary btn-sm" @onclick="OpenCreateModal">
                     Thêm Khách Hàng Mới
                 </button>
@@ -185,7 +194,7 @@
                                     <td>@c.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            @if (currentUser?.Role == "2" && !c.IsActive)
+                                            @if (isSA && !c.IsActive)
                                             {
                                                 <button type="button" class="btn btn-outline-success" @onclick="() => HandleApprove(c)" title="SA duyệt khách hàng">
                                                     Duyệt
@@ -194,9 +203,18 @@
                                             <button type="button" class="btn btn-outline-primary" @onclick="() => OpenEditModal(c)">
                                                 Sửa
                                             </button>
-                                            <button type="button" class="btn btn-outline-danger" @onclick="() => OpenDeleteModal(c)">
-                                                Xóa
-                                            </button>
+                                            @if (!isSA)
+                                            {
+                                                <button type="button" class="btn btn-outline-danger" @onclick="() => OpenDeleteModal(c)">
+                                                    Yêu cầu Xóa
+                                                </button>
+                                            }
+                                            @if (isSA)
+                                            {
+                                                <button type="button" class="btn btn-outline-danger" @onclick="() => HandlePermanentDelete(c)">
+                                                    Xóa vĩnh viễn
+                                                </button>
+                                            }
                                         </div>
                                     </td>
                                 </tr>
@@ -224,7 +242,7 @@
                 <EditForm Model="@createModel" OnValidSubmit="HandleCreateSubmit">
                     <DataAnnotationsValidator />
                     <div class="modal-body">
-                        @if (currentUser?.Role == "1")
+                        @if (currentUser.IsManager())
                         {
                             <div class="alert alert-warning py-1 small mb-3">
                                 <strong>Lưu ý:</strong> Với vai trò Manager, khách hàng sau khi tạo sẽ ở trạng thái <strong>Chờ duyệt</strong> và cần SA phê duyệt.
@@ -302,7 +320,7 @@
                 <EditForm Model="@editModel" OnValidSubmit="HandleEditSubmit">
                     <DataAnnotationsValidator />
                     <div class="modal-body">
-                        @if (currentUser?.Role == "1")
+                        @if (currentUser.IsManager())
                         {
                             <div class="alert alert-warning py-1 small mb-3">
                                 <strong>Lưu ý:</strong> Với vai trò Manager, sau khi cập nhật thông tin khách hàng sẽ chuyển về trạng thái <strong>Chờ duyệt lại</strong> bởi SA.
@@ -374,18 +392,29 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content border">
                 <div class="modal-header bg-light py-2">
-                    <h5 class="modal-title text-danger">Xác Nhận Xóa Khách Hàng</h5>
+                    <h5 class="modal-title text-danger">@(isSA ? "Xác Nhận Xóa Vĩnh Viễn Khách Hàng" : "Xác Nhận Yêu Cầu Xóa Khách Hàng")</h5>
                     <button type="button" class="btn-close" @onclick="CloseDeleteModal" disabled="@isSubmittingModal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="mb-2">Bạn có chắc chắn muốn xóa khách hàng sau khỏi hệ thống?</p>
+                    <p class="mb-2">@(isSA ? "Bạn có chắc chắn muốn xóa vĩnh viễn khách hàng sau khỏi hệ thống?" : "Bạn có chắc chắn muốn gửi yêu cầu xóa khách hàng sau?")</p>
                     <ul class="list-unstyled ps-2 border-start border-3 border-danger py-1 mb-2 bg-light">
                         <li><strong>Mã KH:</strong> @deletingCustomer.CustomerId</li>
                         <li><strong>Họ tên:</strong> @deletingCustomer.CustomerName</li>
                         <li><strong>Email:</strong> @deletingCustomer.CustomerEmail</li>
                         <li><strong>SĐT:</strong> @deletingCustomer.CustomerPhone</li>
                     </ul>
-                    <p class="text-danger small mb-0">Hành động này chưa xóa hẳn dữ liệu và sẽ cần yêu cầu duyệt từ phía SA</p>
+                    @if (isSA)
+                    {
+                        <div class="alert alert-danger py-1 small mb-0">
+                            <strong>Cảnh báo:</strong> Hành động này sẽ xóa vĩnh viễn dữ liệu khách hàng khỏi hệ thống và <strong>không thể khôi phục</strong>.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning py-1 small mb-0">
+                            <strong>Lưu ý:</strong> Hành động này chưa xóa hẳn dữ liệu. Khách hàng sẽ được đánh dấu chờ xóa và cần SA phê duyệt mới xóa hoàn toàn.
+                        </div>
+                    }
                 </div>
                 <div class="modal-footer py-2 bg-light">
                     <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal" disabled="@isSubmittingModal">
@@ -394,11 +423,11 @@
                     <button type="button" class="btn btn-danger" @onclick="HandleDeleteConfirm" disabled="@isSubmittingModal">
                         @if (isSubmittingModal)
                         {
-                            <span>Đang xóa...</span>
+                            <span>@(isSA ? "Đang xóa..." : "Đang gửi yêu cầu...")</span>
                         }
                         else
                         {
-                            <span>Xác nhận Xóa KH</span>
+                            <span>@(isSA ? "Xóa vĩnh viễn" : "Yêu cầu Xóa")</span>
                         }
                     </button>
                 </div>
@@ -432,9 +461,20 @@
     private CustomerDto? editingCustomer;
     private CustomerDto? deletingCustomer;
 
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+    private bool isSA = false;
+
     protected override async Task OnInitializedAsync()
     {
         currentUser = await AuthService.GetCurrentUserInfoAsync();
+        isSA = currentUser.IsSuperAdmin();
+        if (!isSA && AuthStateTask != null)
+        {
+            var state = await AuthStateTask;
+            isSA = state.User.IsSuperAdmin();
+        }
         await LoadAllCustomersAsync();
     }
 
@@ -568,7 +608,7 @@
         {
             var created = await CustomerService.CreateAsync(createModel);
             CloseCreateModal();
-            infoMessage = currentUser?.Role == "1"
+            infoMessage = currentUser.IsManager()
                 ? $"Thêm mới khách hàng '{created.CustomerName}' thành công (Trạng thái: Chờ SA duyệt)."
                 : $"Thêm mới khách hàng '{created.CustomerName}' thành công (Trạng thái: Đã kích hoạt).";
             await LoadAllCustomersAsync();
@@ -583,7 +623,7 @@
         }
     }
 
-    // === THAO TÁC CHỈNH SỬA ===
+    // THAO TÁC CHỈNH SỬA
     private void OpenEditModal(CustomerDto customer)
     {
         editingCustomer = customer;
@@ -631,9 +671,23 @@
         }
     }
 
-    // === THAO TÁC XÓA (YES / NO) ===
+    // KÍCH HOẠT HỘP MODAL XÓA
     private void OpenDeleteModal(CustomerDto customer)
     {
+        deletingCustomer = customer;
+        errorMessage = null;
+        showDeleteModal = true;
+    }
+
+    // XỬ LÝ XÓA VĨNH VIỄN TRỰC TIẾP (DÀNH RIÊNG CHO SA)
+    private void HandlePermanentDelete(CustomerDto customer)
+    {
+        if (!isSA)
+        {
+            errorMessage = "Chỉ Super Admin (SA) mới có quyền xóa vĩnh viễn khách hàng.";
+            return;
+        }
+
         deletingCustomer = customer;
         errorMessage = null;
         showDeleteModal = true;
@@ -655,9 +709,12 @@
 
         try
         {
+            var customerName = deletingCustomer.CustomerName;
             var msg = await CustomerService.DeleteAsync(deletingCustomer.CustomerId);
             CloseDeleteModal();
-            infoMessage = msg;
+            infoMessage = !string.IsNullOrWhiteSpace(msg) 
+                ? msg 
+                : (isSA ? $"Đã xóa vĩnh viễn KH này" : "Yêu cầu xóa đã được gửi, chờ SA duyệt");
             await LoadAllCustomersAsync();
         }
         catch (Exception ex)
@@ -670,7 +727,7 @@
         }
     }
 
-    // === THAO TÁC DUYỆT (APPROVE CHO SA) ===
+    // THAO TÁC DUYỆT (APPROVE CHO SA)
     private async Task HandleApprove(CustomerDto customer)
     {
         isLoading = true;
@@ -693,5 +750,15 @@
     {
         await AuthService.LogoutAsync();
         Navigation.NavigateTo("admin/login");
+    }
+
+    private void NavigateToPendingDeletion()
+    {
+        Navigation.NavigateTo("admin/pending-deletion");
+    }
+
+    private void NavigateToExport()
+    {
+        Navigation.NavigateTo("admin/export");
     }
 }

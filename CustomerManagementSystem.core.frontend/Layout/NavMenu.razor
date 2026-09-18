@@ -1,3 +1,5 @@
+@inject IAuthService AuthService
+
 <div class="top-row ps-3 navbar navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">TungTH</a>
@@ -17,10 +19,43 @@
 
         <AuthorizeView>
             <Authorized>
+                <!-- SUB-MENU QUẢN TRỊ VIÊN (ADMIN) -->
                 <div class="nav-item px-3 py-1">
-                    <NavLink class="nav-link" href="admin/customers">
-                        Quản lý Khách hàng
-                    </NavLink>
+                    <div class="nav-link text-white-50 d-flex justify-content-between align-items-center"
+                         style="cursor: pointer;"
+                         @onclick="ToggleAdminSubMenu"
+                         @onclick:stopPropagation="true">
+                        <span class="text-white fw-bold">Admin</span>
+                        <span class="badge bg-secondary" style="font-size: 0.75rem;">
+                            @(expandAdminSubMenu ? "" : "Mở rộng")
+                        </span>
+                    </div>
+
+                    @if (expandAdminSubMenu)
+                    {
+                        <div class="ps-3 border-start border-secondary ms-2 mt-1">
+                            <div class="nav-item py-1">
+                                <NavLink class="nav-link" href="admin/customers">
+                                    Quản lý Khách hàng
+                                </NavLink>
+                            </div>
+
+                            @if (context.User.IsSuperAdmin() || isSA)
+                            {
+                                <div class="nav-item py-1">
+                                    <NavLink class="nav-link" href="admin/pending-deletion">
+                                        Yêu cầu Xóa KH
+                                    </NavLink>
+                                </div>
+                            }
+
+                            <div class="nav-item py-1">
+                                <NavLink class="nav-link" href="admin/export">
+                                    Xuất Excel
+                                </NavLink>
+                            </div>
+                        </div>
+                    }
                 </div>
             </Authorized>
             <NotAuthorized>
@@ -36,11 +71,32 @@
 
 @code {
     private bool collapseNavMenu = true;
+    private bool expandAdminSubMenu = true;
+    private bool isSA = false;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            var user = await AuthService.GetCurrentUserInfoAsync();
+            isSA = user.IsSuperAdmin();
+        }
+        catch
+        {
+            // ignore
+        }
+    }
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
+    private void ToggleAdminSubMenu()
+    {
+        expandAdminSubMenu = !expandAdminSubMenu;
+    }
 }
+

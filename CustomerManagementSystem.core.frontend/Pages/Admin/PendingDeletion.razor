@@ -1,0 +1,312 @@
+@page "/admin/pending-deletion"
+@attribute [Authorize]
+@inject IAuthService AuthService
+@inject ICustomerService CustomerService
+@inject NavigationManager Navigation
+
+<PageTitle>Danh sách chờ Xóa</PageTitle>
+
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+        <div>
+            <h4 class="mb-0 text-danger">Danh Sách Khách Hàng Chờ Xóa</h4>
+            <small class="text-muted">
+                Xin chào: <strong>@(currentUser?.OrgName ?? "Quản trị viên")</strong> | 
+                Vai trò: <strong>SA account</strong>
+            </small>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-primary btn-sm" @onclick="NavigateToCustomers">
+                Quay lại Danh sách KH
+            </button>
+            <button type="button" class="btn btn-outline-danger btn-sm" @onclick="HandleLogout">
+                Đăng xuất
+            </button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show py-2 mb-3" role="alert">
+            <strong>Lỗi:</strong> @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(infoMessage))
+    {
+        <div class="alert alert-info alert-dismissible fade show py-2 mb-3" role="alert">
+            @infoMessage
+            <button type="button" class="btn-close" @onclick="() => infoMessage = null"></button>
+        </div>
+    }
+
+    @if (!isSA)
+    {
+        <div class="alert alert-warning text-center py-4">
+            <strong>Bạn không có quyền truy cập trang này.</strong>
+            <br />
+            <small>Chỉ SA (Super Admin) mới được phép xem và duyệt xóa khách hàng.</small>
+            <br />
+            <button type="button" class="btn btn-outline-primary btn-sm mt-2" @onclick="NavigateToCustomers">
+                Quay lại Danh sách KH
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="card border">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                <div>
+                    <strong>Khách Hàng Đang Chờ Duyệt Xóa</strong>
+                    <span class="badge bg-danger ms-2">@pendingCustomers.Count yêu cầu</span>
+                </div>
+                <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="LoadPendingDeletionAsync" disabled="@isLoading">
+                    Tải lại
+                </button>
+            </div>
+
+            <div class="card-body p-0">
+                @if (isLoading)
+                {
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted mb-0">Đang tải danh sách chờ xóa...</p>
+                    </div>
+                }
+                else if (pendingCustomers.Count == 0)
+                {
+                    <div class="text-center py-5 text-muted">
+                        <p class="mb-2">Không có khách hàng nào đang chờ duyệt xóa.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 50px;" class="text-center">STT</th>
+                                    <th>Mã KH</th>
+                                    <th>Họ và tên</th>
+                                    <th>Email</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Nơi sinh sống</th>
+                                    <th>Ngày yêu cầu xóa</th>
+                                    <th class="text-center" style="min-width: 150px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < pendingCustomers.Count; i++)
+                                {
+                                    var c = pendingCustomers[i];
+                                    var index = i + 1;
+                                    <tr>
+                                        <td class="text-center">@index</td>
+                                        <td><strong>@c.CustomerId</strong></td>
+                                        <td>@c.CustomerName</td>
+                                        <td>@c.CustomerEmail</td>
+                                        <td>@c.CustomerPhone</td>
+                                        <td>@c.CustomerBirth.ToString("dd/MM/yyyy")</td>
+                                        <td>@c.CustomerAddress</td>
+                                        <td>
+                                            @if (c.DeletedAt.HasValue)
+                                            {
+                                                <span class="text-danger">@c.DeletedAt.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button type="button" class="btn btn-outline-success" @onclick="() => HandleRestoreCustomer(c)" title="Khôi phục KH (hủy yêu cầu xóa)">
+                                                    Khôi phục
+                                                </button>
+                                                <button type="button" class="btn btn-danger" @onclick="() => OpenPermanentDeleteModal(c)" title="Xóa hoàn toàn khỏi hệ thống">
+                                                    Xóa hoàn toàn
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<!-- MODAL XÁC NHẬN XÓA HOÀN TOÀN -->
+@if (showDeleteModal && deletingCustomer != null)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border">
+                <div class="modal-header bg-light py-2">
+                    <h5 class="modal-title text-danger">Xác Nhận Xóa Hoàn Toàn Khách Hàng</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDeleteModal" disabled="@isSubmitting"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2">Bạn có chắc chắn muốn <strong>xóa hoàn toàn</strong> khách hàng sau khỏi hệ thống?</p>
+                    <ul class="list-unstyled ps-2 border-start border-3 border-danger py-1 mb-2 bg-light">
+                        <li><strong>Mã KH:</strong> @deletingCustomer.CustomerId</li>
+                        <li><strong>Họ tên:</strong> @deletingCustomer.CustomerName</li>
+                        <li><strong>Email:</strong> @deletingCustomer.CustomerEmail</li>
+                        <li><strong>SĐT:</strong> @deletingCustomer.CustomerPhone</li>
+                        @if (deletingCustomer.DeletedAt.HasValue)
+                        {
+                            <li><strong>Ngày yêu cầu xóa:</strong> @deletingCustomer.DeletedAt.Value.ToString("dd/MM/yyyy HH:mm")</li>
+                        }
+                    </ul>
+                    <div class="alert alert-danger py-1 small mb-0">
+                        <strong>Cảnh báo:</strong> Hành động này sẽ xóa vĩnh viễn dữ liệu khách hàng và <strong>không thể khôi phục</strong>.
+                    </div>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal" disabled="@isSubmitting">
+                        Không, Hủy bỏ
+                    </button>
+                    <button type="button" class="btn btn-danger" @onclick="HandlePermanentDeleteConfirm" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span>Đang xóa...</span>
+                        }
+                        else
+                        {
+                            <span>Xóa hoàn toàn</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private OrgMemberDto? currentUser;
+    private List<CustomerDto> pendingCustomers = new();
+    private bool isLoading = true;
+    private bool isSA = false;
+
+    private string? errorMessage;
+    private string? infoMessage;
+
+    // Modal trạng thái
+    private bool showDeleteModal = false;
+    private bool isSubmitting = false;
+    private CustomerDto? deletingCustomer;
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthService.GetCurrentUserInfoAsync();
+        isSA = currentUser.IsSuperAdmin();
+
+        if (!isSA && AuthStateTask != null)
+        {
+            var authState = await AuthStateTask;
+            isSA = authState.User.IsSuperAdmin();
+        }
+
+        if (isSA)
+        {
+            await LoadPendingDeletionAsync();
+        }
+        else
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadPendingDeletionAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var result = await CustomerService.GetPendingDeletionAsync();
+            pendingCustomers = result.ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Lỗi khi tải danh sách chờ xóa: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // XÓA HOÀN TOÀN
+    private void OpenPermanentDeleteModal(CustomerDto customer)
+    {
+        deletingCustomer = customer;
+        errorMessage = null;
+        showDeleteModal = true;
+    }
+
+    private void CloseDeleteModal()
+    {
+        showDeleteModal = false;
+        deletingCustomer = null;
+        isSubmitting = false;
+    }
+
+    private async Task HandlePermanentDeleteConfirm()
+    {
+        if (deletingCustomer == null) return;
+
+        isSubmitting = true;
+        errorMessage = null;
+
+        try
+        {
+            var msg = await CustomerService.DeleteAsync(deletingCustomer.CustomerId);
+            CloseDeleteModal();
+            infoMessage = $"Đã xóa hoàn toàn khách hàng '{deletingCustomer.CustomerName}' khỏi hệ thống.";
+            await LoadPendingDeletionAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    // KHÔI PHỤC (HỦY YÊU CẦU XÓA)
+    private async Task HandleRestoreCustomer(CustomerDto customer)
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var msg = await CustomerService.ApproveCustomerAsync(customer.CustomerId);
+            infoMessage = $"Đã khôi phục khách hàng '{customer.CustomerName}' (hủy yêu cầu xóa, kích hoạt lại).";
+            await LoadPendingDeletionAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            isLoading = false;
+        }
+    }
+
+    private void NavigateToCustomers()
+    {
+        Navigation.NavigateTo("admin/customers");
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("admin/login");
+    }
+}

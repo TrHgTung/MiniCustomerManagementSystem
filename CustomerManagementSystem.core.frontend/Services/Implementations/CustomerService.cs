@@ -219,12 +219,47 @@ namespace CustomerManagementSystem.core.frontend.Services.Implementations
             return await response.Content.ReadFromJsonAsync<IEnumerable<CustomerDto>>() ?? Enumerable.Empty<CustomerDto>();
         }
 
+        public async Task<IEnumerable<CustomerDto>> GetPendingDeletionAsync()
+        {
+            var response = await _httpClient.GetAsync("admin/customers/pending-deletion");
+            if (!response.IsSuccessStatusCode)
+            {
+                string errorMessage = "Không thể tải danh sách chờ xóa.";
+                try
+                {
+                    var errObj = await response.Content.ReadFromJsonAsync<ApiMessageResponse>();
+                    if (!string.IsNullOrWhiteSpace(errObj?.Message)) errorMessage = errObj.Message;
+                }
+                catch
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrWhiteSpace(raw)) errorMessage = raw;
+                }
+                throw new Exception(errorMessage);
+            }
+            return await response.Content.ReadFromJsonAsync<IEnumerable<CustomerDto>>() ?? Enumerable.Empty<CustomerDto>();
+        }
+
         public async Task<byte[]> ExportExcelAsync(DateTime fromDate, DateTime toDate)
         {
             var from = fromDate.ToString("yyyy-MM-dd");
             var to = toDate.ToString("yyyy-MM-dd");
             var response = await _httpClient.GetAsync($"admin/export/customers?FromDate={from}&ToDate={to}");
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                string errorMessage = "Xuất dữ liệu Excel không thành công.";
+                try
+                {
+                    var errObj = await response.Content.ReadFromJsonAsync<ApiMessageResponse>();
+                    if (!string.IsNullOrWhiteSpace(errObj?.Message)) errorMessage = errObj.Message;
+                }
+                catch
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrWhiteSpace(raw)) errorMessage = raw;
+                }
+                throw new Exception(errorMessage);
+            }
             return await response.Content.ReadAsByteArrayAsync();
         }
     }
