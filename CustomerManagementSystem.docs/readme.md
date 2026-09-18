@@ -4,6 +4,12 @@
 Hệ thống Quản lý Thông tin Khách hàng phân quyền hai cấp: **Super Admin (SA)** và **Manager**, tích hợp trang Đăng ký tư vấn trực tuyến (Public), luồng phê duyệt dữ liệu và xuất báo cáo Excel. Xem thêm [trong tài liệu đặc tả](CustomerManagementSystem.docs/Specification%20Document%20-%20Mini%20Customer%20Management%20System.pdf)
 
 ---
+### **Tài liệu online và Video demo**: https://tungth-dev.pages.dev/projects/mini-customer-management-system
+
+### **Source Code**: https://github.com/TrHgTung/MiniCustomerManagementSystem
+
+### **Postman File Export**: [Customer Management System API.postman_collection.json](./CustomerManagementSystem.docs/Postman-Export/Customer%20Management%20System%20API.postman_collection.json)
+---
 
 ## 1. Kiến Trúc & Công Nghệ Sử Dụng
 
@@ -146,6 +152,13 @@ Hệ thống định nghĩa hai cấp phân quyền trong hệ thống quản tr
 | **Xuất Excel** | Xuất **toàn bộ** dữ liệu (gồm cả chờ duyệt) | Chỉ xuất các KH **đã kích hoạt** (`IsActive = true`) |
 | **Quản lý Manager** | Toàn quyền tạo/khóa/xem Manager | Không có quyền |
 
+#### Sample login:
+```json
+{
+  "orgEmail": "admin@tungth.com",
+  "orgPassword": "Test@123"
+}
+```
 ---
 
 ## 5. Danh Sách Màn Hình & Chức Năng Trên Giao Diện
@@ -264,3 +277,9 @@ CustomerManagementSystem/
       "Password": "your-gmail-app-password"
     }
 ```
+
+## 8. Tài liệu liên quan:
+- [File Tài liệu đặc tả yêu cầu phần mềm](CustomerManagementSystem.docs/Specification%20Document%20-%20Customer%20Management%20System%20-%20Version%201.0.pdf)
+- Tài liệu online và Video demo: https://tungth-dev.pages.dev/projects/mini-customer-management-system
+- Source code: https://github.com/TrHgTung/MiniCustomerManagementSystem
+- Hoang Tung (TungTH)

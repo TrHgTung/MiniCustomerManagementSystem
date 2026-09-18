@@ -1,0 +1,1636 @@
+{
+  "info": {
+    "_postman_id": "5fca17b1-aeae-4beb-9129-d3af399b2be2",
+    "name": "Customer Management System API",
+    "description": "API hệ thống - v1.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "23765796"
+  },
+  "item": [
+    {
+      "name": "api",
+      "item": [
+        {
+          "name": "v1",
+          "item": [
+            {
+              "name": "admin",
+              "item": [
+                {
+                  "name": "managers",
+                  "item": [
+                    {
+                      "name": "{id}",
+                      "item": [
+                        {
+                          "name": "/api/v1/admin/managers/:id",
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "text/plain"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/managers/:id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "managers",
+                                ":id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "id",
+                                  "value": "string"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "text/plain"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/admin/managers/:id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "managers",
+                                    ":id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "id",
+                                      "value": "string"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "body": "{\n  \"orgId\": \"string\",\n  \"orgName\": \"string\",\n  \"orgEmail\": \"string\",\n  \"orgPhone\": \"string\",\n  \"role\": \"string\",\n  \"isActive\": false,\n  \"createdAt\": \"1959-03-17T07:28:27.788Z\"\n}"
+                            }
+                          ]
+                        },
+                        {
+                          "name": "/api/v1/admin/managers/:id",
+                          "request": {
+                            "method": "DELETE",
+                            "header": [],
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/managers/:id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "managers",
+                                ":id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "id",
+                                  "value": "string"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/admin/managers/:id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "managers",
+                                    ":id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "id",
+                                      "value": "string"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "body": null
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "/api/v1/admin/managers",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "text/plain"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/api/v1/admin/managers",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "admin",
+                            "managers"
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "OK",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "text/plain"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/managers",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "managers"
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "[\n  {\n    \"orgId\": \"string\",\n    \"orgName\": \"string\",\n    \"orgEmail\": \"string\",\n    \"orgPhone\": \"string\",\n    \"role\": \"string\",\n    \"isActive\": true,\n    \"createdAt\": \"1981-01-23T09:01:34.538Z\"\n  },\n  {\n    \"orgId\": \"string\",\n    \"orgName\": \"string\",\n    \"orgEmail\": \"string\",\n    \"orgPhone\": \"string\",\n    \"role\": \"string\",\n    \"isActive\": false,\n    \"createdAt\": \"1957-10-27T01:34:41.027Z\"\n  }\n]"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "/api/v1/admin/managers",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "text/plain"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"orgEmail\": \"7UuwDOE7dtO@n.px\",\n  \"orgName\": \"string\",\n  \"orgPassword\": \"string\",\n  \"orgPhone\": \"string\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/v1/admin/managers",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "admin",
+                            "managers"
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "OK",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "text/plain"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"orgEmail\": \"7UuwDOE7dtO@n.px\",\n  \"orgName\": \"string\",\n  \"orgPassword\": \"string\",\n  \"orgPhone\": \"string\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/managers",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "managers"
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "{\n  \"orgId\": \"string\",\n  \"orgName\": \"string\",\n  \"orgEmail\": \"string\",\n  \"orgPhone\": \"string\",\n  \"role\": \"string\",\n  \"isActive\": false,\n  \"createdAt\": \"1959-03-17T07:28:27.788Z\"\n}"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "auth",
+                  "item": [
+                    {
+                      "name": "login",
+                      "item": [
+                        {
+                          "name": "/api/v1/admin/auth/login",
+                          "request": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "text/plain"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"orgEmail\": \"yyi@xONydOvmd.ad\",\n  \"orgPassword\": \"string\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/auth/login",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "auth",
+                                "login"
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "text/plain"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"orgEmail\": \"yyi@xONydOvmd.ad\",\n  \"orgPassword\": \"string\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/admin/auth/login",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "auth",
+                                    "login"
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "body": "{\n  \"accessToken\": \"string\",\n  \"refreshToken\": \"string\",\n  \"expiresAt\": \"2015-12-27T06:05:13.328Z\",\n  \"user\": {\n    \"orgId\": \"string\",\n    \"orgName\": \"string\",\n    \"orgEmail\": \"string\",\n    \"orgPhone\": \"string\",\n    \"role\": \"string\",\n    \"isActive\": true\n  }\n}"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "refresh-token",
+                      "item": [
+                        {
+                          "name": "/api/v1/admin/auth/refresh-token",
+                          "request": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "text/plain"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"accessToken\": \"string\",\n  \"refreshToken\": \"string\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/auth/refresh-token",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "auth",
+                                "refresh-token"
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "text/plain"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"accessToken\": \"string\",\n  \"refreshToken\": \"string\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/admin/auth/refresh-token",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "auth",
+                                    "refresh-token"
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "body": "{\n  \"accessToken\": \"string\",\n  \"refreshToken\": \"string\",\n  \"expiresAt\": \"2015-12-27T06:05:13.328Z\",\n  \"user\": {\n    \"orgId\": \"string\",\n    \"orgName\": \"string\",\n    \"orgEmail\": \"string\",\n    \"orgPhone\": \"string\",\n    \"role\": \"string\",\n    \"isActive\": true\n  }\n}"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "logout",
+                      "item": [
+                        {
+                          "name": "/api/v1/admin/auth/logout",
+                          "request": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"refreshToken\": \"string\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/auth/logout",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "auth",
+                                "logout"
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"refreshToken\": \"string\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/admin/auth/logout",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "auth",
+                                    "logout"
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "body": null
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "customers",
+                  "item": [
+                    {
+                      "name": "{id}",
+                      "item": [
+                        {
+                          "name": "approve",
+                          "item": [
+                            {
+                              "name": "/api/v1/admin/customers/:id/approve",
+                              "request": {
+                                "method": "PATCH",
+                                "header": [],
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/admin/customers/:id/approve",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "customers",
+                                    ":id",
+                                    "approve"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "id",
+                                      "value": "string"
+                                    }
+                                  ]
+                                }
+                              },
+                              "response": [
+                                {
+                                  "name": "OK",
+                                  "originalRequest": {
+                                    "method": "PATCH",
+                                    "header": [
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/api/v1/admin/customers/:id/approve",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "api",
+                                        "v1",
+                                        "admin",
+                                        "customers",
+                                        ":id",
+                                        "approve"
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "id",
+                                          "value": "string"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "OK",
+                                  "code": 200,
+                                  "_postman_previewlanguage": "text",
+                                  "header": [],
+                                  "cookie": [],
+                                  "body": null
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "name": "/api/v1/admin/customers/:id",
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "text/plain"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/customers/:id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "customers",
+                                ":id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "id",
+                                  "value": "string"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "text/plain"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/admin/customers/:id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "customers",
+                                    ":id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "id",
+                                      "value": "string"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "body": "{\n  \"customerId\": \"string\",\n  \"customerName\": \"string\",\n  \"customerEmail\": \"string\",\n  \"customerPhone\": \"string\",\n  \"customerBirth\": \"2014-05-01T01:44:51.685Z\",\n  \"customerAddress\": \"string\",\n  \"isActive\": true,\n  \"createdAt\": \"1999-12-08T08:39:36.671Z\",\n  \"deletedAt\": \"2015-11-23T10:13:42.259Z\"\n}"
+                            }
+                          ]
+                        },
+                        {
+                          "name": "/api/v1/admin/customers/:id",
+                          "request": {
+                            "method": "PUT",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"customerAddress\": \"string\",\n  \"customerBirth\": \"1976-03-25T09:01:11.006Z\",\n  \"customerEmail\": \"HD6ANY-sg@SEWFtxP.yaz\",\n  \"customerName\": \"string\",\n  \"customerPhone\": \"st\",\n  \"isActive\": false\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/customers/:id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "customers",
+                                ":id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "id",
+                                  "value": "string"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"customerAddress\": \"string\",\n  \"customerBirth\": \"1976-03-25T09:01:11.006Z\",\n  \"customerEmail\": \"HD6ANY-sg@SEWFtxP.yaz\",\n  \"customerName\": \"string\",\n  \"customerPhone\": \"st\",\n  \"isActive\": false\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/admin/customers/:id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "customers",
+                                    ":id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "id",
+                                      "value": "string"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "body": null
+                            }
+                          ]
+                        },
+                        {
+                          "name": "/api/v1/admin/customers/:id",
+                          "request": {
+                            "method": "DELETE",
+                            "header": [],
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/customers/:id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "customers",
+                                ":id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "id",
+                                  "value": "string"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "DELETE",
+                                "header": [
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/admin/customers/:id",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "customers",
+                                    ":id"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "id",
+                                      "value": "string"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "body": null
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "pending-updation",
+                      "item": [
+                        {
+                          "name": "/api/v1/admin/customers/pending-updation",
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "text/plain"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/customers/pending-updation",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "customers",
+                                "pending-updation"
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "text/plain"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/admin/customers/pending-updation",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "customers",
+                                    "pending-updation"
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "body": "[\n  {\n    \"customerId\": \"string\",\n    \"customerName\": \"string\",\n    \"customerEmail\": \"string\",\n    \"customerPhone\": \"string\",\n    \"customerBirth\": \"2011-12-31T21:32:07.545Z\",\n    \"customerAddress\": \"string\",\n    \"isActive\": true,\n    \"createdAt\": \"1991-08-27T19:23:18.456Z\",\n    \"deletedAt\": \"2014-01-28T08:31:45.254Z\"\n  },\n  {\n    \"customerId\": \"string\",\n    \"customerName\": \"string\",\n    \"customerEmail\": \"string\",\n    \"customerPhone\": \"string\",\n    \"customerBirth\": \"1977-08-12T14:30:54.516Z\",\n    \"customerAddress\": \"string\",\n    \"isActive\": true,\n    \"createdAt\": \"2005-05-03T13:11:14.572Z\",\n    \"deletedAt\": \"2015-10-02T20:37:41.800Z\"\n  }\n]"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "pending-deletion",
+                      "item": [
+                        {
+                          "name": "/api/v1/admin/customers/pending-deletion",
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "text/plain"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/customers/pending-deletion",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "customers",
+                                "pending-deletion"
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "text/plain"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/admin/customers/pending-deletion",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "customers",
+                                    "pending-deletion"
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "body": "[\n  {\n    \"customerId\": \"string\",\n    \"customerName\": \"string\",\n    \"customerEmail\": \"string\",\n    \"customerPhone\": \"string\",\n    \"customerBirth\": \"2011-12-31T21:32:07.545Z\",\n    \"customerAddress\": \"string\",\n    \"isActive\": true,\n    \"createdAt\": \"1991-08-27T19:23:18.456Z\",\n    \"deletedAt\": \"2014-01-28T08:31:45.254Z\"\n  },\n  {\n    \"customerId\": \"string\",\n    \"customerName\": \"string\",\n    \"customerEmail\": \"string\",\n    \"customerPhone\": \"string\",\n    \"customerBirth\": \"1977-08-12T14:30:54.516Z\",\n    \"customerAddress\": \"string\",\n    \"isActive\": true,\n    \"createdAt\": \"2005-05-03T13:11:14.572Z\",\n    \"deletedAt\": \"2015-10-02T20:37:41.800Z\"\n  }\n]"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "filter",
+                      "item": [
+                        {
+                          "name": "/api/v1/admin/customers/filter",
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "text/plain"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/customers/filter?address=string&birthYear=1926",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "customers",
+                                "filter"
+                              ],
+                              "query": [
+                                {
+                                  "key": "address",
+                                  "value": "string"
+                                },
+                                {
+                                  "key": "birthYear",
+                                  "value": "1926"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "text/plain"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/admin/customers/filter?address=string&birthYear=1926",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "customers",
+                                    "filter"
+                                  ],
+                                  "query": [
+                                    {
+                                      "key": "address",
+                                      "value": "string"
+                                    },
+                                    {
+                                      "key": "birthYear",
+                                      "value": "1926"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "body": "[\n  {\n    \"customerId\": \"string\",\n    \"customerName\": \"string\",\n    \"customerEmail\": \"string\",\n    \"customerPhone\": \"string\",\n    \"customerBirth\": \"2011-12-31T21:32:07.545Z\",\n    \"customerAddress\": \"string\",\n    \"isActive\": true,\n    \"createdAt\": \"1991-08-27T19:23:18.456Z\",\n    \"deletedAt\": \"2014-01-28T08:31:45.254Z\"\n  },\n  {\n    \"customerId\": \"string\",\n    \"customerName\": \"string\",\n    \"customerEmail\": \"string\",\n    \"customerPhone\": \"string\",\n    \"customerBirth\": \"1977-08-12T14:30:54.516Z\",\n    \"customerAddress\": \"string\",\n    \"isActive\": true,\n    \"createdAt\": \"2005-05-03T13:11:14.572Z\",\n    \"deletedAt\": \"2015-10-02T20:37:41.800Z\"\n  }\n]"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "search",
+                      "item": [
+                        {
+                          "name": "/api/v1/admin/customers/search",
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "text/plain"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/customers/search?keyword=string",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "customers",
+                                "search"
+                              ],
+                              "query": [
+                                {
+                                  "key": "keyword",
+                                  "value": "string"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "text/plain"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/admin/customers/search?keyword=string",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "customers",
+                                    "search"
+                                  ],
+                                  "query": [
+                                    {
+                                      "key": "keyword",
+                                      "value": "string"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "body": "[\n  {\n    \"customerId\": \"string\",\n    \"customerName\": \"string\",\n    \"customerEmail\": \"string\",\n    \"customerPhone\": \"string\",\n    \"customerBirth\": \"2011-12-31T21:32:07.545Z\",\n    \"customerAddress\": \"string\",\n    \"isActive\": true,\n    \"createdAt\": \"1991-08-27T19:23:18.456Z\",\n    \"deletedAt\": \"2014-01-28T08:31:45.254Z\"\n  },\n  {\n    \"customerId\": \"string\",\n    \"customerName\": \"string\",\n    \"customerEmail\": \"string\",\n    \"customerPhone\": \"string\",\n    \"customerBirth\": \"1977-08-12T14:30:54.516Z\",\n    \"customerAddress\": \"string\",\n    \"isActive\": true,\n    \"createdAt\": \"2005-05-03T13:11:14.572Z\",\n    \"deletedAt\": \"2015-10-02T20:37:41.800Z\"\n  }\n]"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "/api/v1/admin/customers",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "text/plain"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/api/v1/admin/customers",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "admin",
+                            "customers"
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "OK",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "text/plain"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/customers",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "customers"
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "[\n  {\n    \"customerId\": \"string\",\n    \"customerName\": \"string\",\n    \"customerEmail\": \"string\",\n    \"customerPhone\": \"string\",\n    \"customerBirth\": \"2011-12-31T21:32:07.545Z\",\n    \"customerAddress\": \"string\",\n    \"isActive\": true,\n    \"createdAt\": \"1991-08-27T19:23:18.456Z\",\n    \"deletedAt\": \"2014-01-28T08:31:45.254Z\"\n  },\n  {\n    \"customerId\": \"string\",\n    \"customerName\": \"string\",\n    \"customerEmail\": \"string\",\n    \"customerPhone\": \"string\",\n    \"customerBirth\": \"1977-08-12T14:30:54.516Z\",\n    \"customerAddress\": \"string\",\n    \"isActive\": true,\n    \"createdAt\": \"2005-05-03T13:11:14.572Z\",\n    \"deletedAt\": \"2015-10-02T20:37:41.800Z\"\n  }\n]"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "/api/v1/admin/customers",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "text/plain"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"customerAddress\": \"string\",\n  \"customerBirth\": \"1976-03-25T09:01:11.006Z\",\n  \"customerEmail\": \"HD6ANY-sg@SEWFtxP.yaz\",\n  \"customerName\": \"string\",\n  \"customerPhone\": \"st\",\n  \"isActive\": false\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/v1/admin/customers",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "admin",
+                            "customers"
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "OK",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "text/plain"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"customerAddress\": \"string\",\n  \"customerBirth\": \"1976-03-25T09:01:11.006Z\",\n  \"customerEmail\": \"HD6ANY-sg@SEWFtxP.yaz\",\n  \"customerName\": \"string\",\n  \"customerPhone\": \"st\",\n  \"isActive\": false\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/customers",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "customers"
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "{\n  \"customerId\": \"string\",\n  \"customerName\": \"string\",\n  \"customerEmail\": \"string\",\n  \"customerPhone\": \"string\",\n  \"customerBirth\": \"2014-05-01T01:44:51.685Z\",\n  \"customerAddress\": \"string\",\n  \"isActive\": true,\n  \"createdAt\": \"1999-12-08T08:39:36.671Z\",\n  \"deletedAt\": \"2015-11-23T10:13:42.259Z\"\n}"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "export",
+                  "item": [
+                    {
+                      "name": "customers",
+                      "item": [
+                        {
+                          "name": "/api/v1/admin/export/customers",
+                          "request": {
+                            "method": "GET",
+                            "header": [],
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/admin/export/customers?FromDate=1993-08-02T16:33:16.542Z&ToDate=1993-08-02T16:33:16.542Z",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "admin",
+                                "export",
+                                "customers"
+                              ],
+                              "query": [
+                                {
+                                  "key": "FromDate",
+                                  "value": "1993-08-02T16:33:16.542Z"
+                                },
+                                {
+                                  "key": "ToDate",
+                                  "value": "1993-08-02T16:33:16.542Z"
+                                }
+                              ]
+                            }
+                          },
+                          "response": [
+                            {
+                              "name": "OK",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/api/v1/admin/export/customers?FromDate=1993-08-02T16:33:16.542Z&ToDate=1993-08-02T16:33:16.542Z",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "api",
+                                    "v1",
+                                    "admin",
+                                    "export",
+                                    "customers"
+                                  ],
+                                  "query": [
+                                    {
+                                      "key": "FromDate",
+                                      "value": "1993-08-02T16:33:16.542Z"
+                                    },
+                                    {
+                                      "key": "ToDate",
+                                      "value": "1993-08-02T16:33:16.542Z"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "body": null
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "customer",
+              "item": [
+                {
+                  "name": "form",
+                  "item": [
+                    {
+                      "name": "/api/v1/customer/form",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"customerAddress\": \"string\",\n  \"customerBirth\": \"1967-09-22T09:11:42.595Z\",\n  \"customerEmail\": \"n5IXOtx@ODYQOTWzdgMHLCzWgclz.vqet\",\n  \"customerName\": \"string\",\n  \"customerPhone\": \"string\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/api/v1/customer/form",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "api",
+                            "v1",
+                            "customer",
+                            "form"
+                          ]
+                        }
+                      },
+                      "response": [
+                        {
+                          "name": "OK",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"customerAddress\": \"string\",\n  \"customerBirth\": \"1967-09-22T09:11:42.595Z\",\n  \"customerEmail\": \"n5IXOtx@ODYQOTWzdgMHLCzWgclz.vqet\",\n  \"customerName\": \"string\",\n  \"customerPhone\": \"string\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/api/v1/customer/form",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "api",
+                                "v1",
+                                "customer",
+                                "form"
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "body": null
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "/"
+    }
+  ]
+}
