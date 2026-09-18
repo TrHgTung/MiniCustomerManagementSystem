@@ -91,7 +91,21 @@ namespace CustomerManagementSystem.core.frontend.Services.Implementations
         {
             var encoded = Uri.EscapeDataString(keyword);
             var response = await _httpClient.GetAsync($"admin/customers/search?keyword={encoded}");
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                string errorMessage = "Tìm kiếm không thành công.";
+                try
+                {
+                    var errObj = await response.Content.ReadFromJsonAsync<ApiMessageResponse>();
+                    if (!string.IsNullOrWhiteSpace(errObj?.Message)) errorMessage = errObj.Message;
+                }
+                catch
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrWhiteSpace(raw)) errorMessage = raw;
+                }
+                throw new Exception(errorMessage);
+            }
             return await response.Content.ReadFromJsonAsync<IEnumerable<CustomerDto>>() ?? Enumerable.Empty<CustomerDto>();
         }
 
@@ -105,7 +119,21 @@ namespace CustomerManagementSystem.core.frontend.Services.Implementations
 
             var query = string.Join("&", queryParams);
             var response = await _httpClient.GetAsync($"admin/customers/filter?{query}");
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                string errorMessage = "Lọc dữ liệu không thành công.";
+                try
+                {
+                    var errObj = await response.Content.ReadFromJsonAsync<ApiMessageResponse>();
+                    if (!string.IsNullOrWhiteSpace(errObj?.Message)) errorMessage = errObj.Message;
+                }
+                catch
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrWhiteSpace(raw)) errorMessage = raw;
+                }
+                throw new Exception(errorMessage);
+            }
             return await response.Content.ReadFromJsonAsync<IEnumerable<CustomerDto>>() ?? Enumerable.Empty<CustomerDto>();
         }
 

@@ -1,6 +1,7 @@
 @page "/admin/customers"
 @attribute [Authorize]
 @inject IAuthService AuthService
+@inject ICustomerService CustomerService
 @inject NavigationManager Navigation
 
 <PageTitle>Quản lý khách hàng</PageTitle>
@@ -8,30 +9,323 @@
 <div class="container-fluid py-3">
     <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
         <div>
-            <h4 class="mb-0 text-primary">Danh Sách Khách Hàng</h4>
+            <h4 class="mb-0 text-primary">Quản lý thông tin Khách Hàng</h4>
             <small class="text-muted">
-                Xin chào, <strong>@(currentUser?.OrgName ?? "Quản trị viên")</strong> 
-                (@(currentUser?.Role == "2" ? "Super Admin" : "Manager"))
+                Xin chào: <strong>@(currentUser?.OrgName ?? "Quản trị viên")</strong> | 
+                Vai trò: <strong>@(currentUser?.Role == "2" ? "SA account" : "Manager account")</strong>
             </small>
         </div>
         <div>
-            <button class="btn btn-outline-danger btn-sm" @onclick="HandleLogout">
+            <button type="button" class="btn btn-outline-danger btn-sm" @onclick="HandleLogout">
                 Đăng xuất
             </button>
         </div>
     </div>
 
-    <div class="alert alert-info py-2" role="alert">
-        Đăng nhập thành công vào admin page
+    <!-- Thông báo lỗi / thông tin nếu có -->
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show py-2 mb-3" role="alert">
+            <strong>Lỗi:</strong> @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(infoMessage))
+    {
+        <div class="alert alert-info alert-dismissible fade show py-2 mb-3" role="alert">
+            @infoMessage
+            <button type="button" class="btn-close" @onclick="() => infoMessage = null"></button>
+        </div>
+    }
+
+    <!-- Khu vực Tìm kiếm & Lọc dữ liệu -->
+    <div class="card border mb-3">
+        <div class="card-header bg-light py-2">
+            <strong>Công cụ Tìm kiếm & Lọc dữ liệu</strong>
+        </div>
+        <div class="card-body p-3">
+            <div class="row g-2 align-items-end">
+
+                <!-- Tìm kiếm theo từ khóa -->
+                <div class="col-12 col-md-5">
+                    <label class="form-label small fw-bold mb-1">Tìm kiếm từ khóa:</label>
+                    <div class="input-group">
+                        <input type="text"
+                               class="form-control"
+                               placeholder="Mã KH, họ tên, email, SĐT..."
+                               @bind="searchKeyword"
+                               @bind:event="oninput"
+                               @onkeyup="HandleSearchKeyUp" />
+                        <button type="button" class="btn btn-primary" @onclick="HandleSearch" disabled="@isLoading">
+                            Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lọc theo Tỉnh/Thành -->
+                <div class="col-12 col-sm-6 col-md-3">
+                    <label class="form-label small fw-bold mb-1">Nơi sinh sống (Tỉnh/Thành):</label>
+                    <select class="form-select" @bind="filterAddress">
+                        <option value="">-- Tất cả Tỉnh / Thành --</option>
+                        @foreach (var p in Provinces)
+                        {
+                            <option value="@p">@p</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Lọc theo Năm sinh -->
+                <div class="col-12 col-sm-6 col-md-2">
+                    <label class="form-label small fw-bold mb-1">Năm sinh:</label>
+                    <input type="number"
+                           class="form-control"
+                           placeholder="Ví dụ: 1995"
+                           min="1900"
+                           max="2030"
+                           @bind="filterBirthYear" />
+                </div>
+
+                <!-- Các nút Lọc và Làm mới -->
+                <div class="col-12 col-md-2 d-flex gap-1">
+                    <button type="button" class="btn btn-success flex-fill" @onclick="HandleFilter" disabled="@isLoading">
+                        Lọc
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="ResetSearchAndFilter" disabled="@isLoading" title="Tải lại toàn bộ dữ liệu">
+                        Đặt lại
+                    </button>
+                </div>
+
+            </div>
+        </div>
     </div>
+
+    <!-- Bảng hiển thị danh sách khách hàng -->
+    <div class="card border">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+            <span>
+                <strong>Danh Sách Khách Hàng</strong> 
+                <span class="badge bg-secondary ms-2">@customers.Count kết quả</span>
+            </span>
+            @if (isFilteredOrSearched)
+            {
+                <span class="badge bg-warning text-dark">
+                    Đang lọc danh sách
+                </span>
+            }
+        </div>
+
+        <div class="card-body p-0">
+            @if (isLoading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted mb-0">Đang tải danh sách khách hàng...</p>
+                </div>
+            }
+            else if (customers.Count == 0)
+            {
+                <div class="text-center py-5 text-muted">
+                    <p class="mb-2">Không tìm thấy khách hàng nào phù hợp.</p>
+                    @if (isFilteredOrSearched)
+                    {
+                        <button type="button" class="btn btn-outline-primary btn-sm" @onclick="ResetSearchAndFilter">
+                            Xem tất cả khách hàng
+                        </button>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px;" class="text-center">STT</th>
+                                <th>Mã KH</th>
+                                <th>Họ và tên</th>
+                                <th>Email</th>
+                                <th>Số điện thoại</th>
+                                <th>Ngày sinh</th>
+                                <th>Nơi sinh sống</th>
+                                <th class="text-center">Trạng thái</th>
+                                <th>Ngày tạo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < customers.Count; i++)
+                            {
+                                var c = customers[i];
+                                var index = i + 1;
+                                <tr>
+                                    <td class="text-center">@index</td>
+                                    <td><strong>@c.CustomerId</strong></td>
+                                    <td>@c.CustomerName</td>
+                                    <td>@c.CustomerEmail</td>
+                                    <td>@c.CustomerPhone</td>
+                                    <td>@c.CustomerBirth.ToString("dd/MM/yyyy")</td>
+                                    <td>@c.CustomerAddress</td>
+                                    <td class="text-center">
+                                        @if (c.IsActive)
+                                        {
+                                            <span class="badge bg-success">Khách hàng</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Chờ duyệt</span>
+                                        }
+                                    </td>
+                                    <td>@c.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
 </div>
 
 @code {
     private OrgMemberDto? currentUser;
+    private List<CustomerDto> customers = new();
+    private bool isLoading = true;
+    private bool isFilteredOrSearched = false;
+
+    // Dữ liệu tìm kiếm & lọc
+    private string? searchKeyword;
+    private string? filterAddress;
+    private int? filterBirthYear;
+
+    private string? errorMessage;
+    private string? infoMessage;
+
+    private readonly string[] Provinces = new[]
+    {
+        "Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ",
+        "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu",
+        "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước",
+        "Bình Thuận", "Cà Mau", "Cao Bằng", "Đắk Lắk", "Đắk Nông",
+        "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Giang",
+        "Hà Nam", "Hà Tĩnh", "Hải Dương", "Hậu Giang", "Hòa Bình",
+        "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu",
+        "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định",
+        "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên",
+        "Quảng Bình", "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị",
+        "Sóc Trăng", "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên",
+        "Thanh Hóa", "Thừa Thiên Huế", "Tiền Giang", "Trà Vinh", "Tuyên Quang",
+        "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"
+    };
 
     protected override async Task OnInitializedAsync()
     {
         currentUser = await AuthService.GetCurrentUserInfoAsync();
+        await LoadAllCustomersAsync();
+    }
+
+    private async Task LoadAllCustomersAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var result = await CustomerService.GetAllAsync();
+            customers = result.ToList();
+            isFilteredOrSearched = false;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Lỗi khi tải dữ liệu khách hàng: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleSearch()
+    {
+        if (string.IsNullOrWhiteSpace(searchKeyword))
+        {
+            await LoadAllCustomersAsync();
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+        infoMessage = null;
+
+        try
+        {
+            var result = await CustomerService.SearchAsync(searchKeyword.Trim());
+            customers = result.ToList();
+            isFilteredOrSearched = true;
+            infoMessage = $"Tìm thấy {customers.Count} kết quả cho từ khóa \"{searchKeyword.Trim()}\".";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Lỗi khi tìm kiếm khách hàng: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleSearchKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await HandleSearch();
+        }
+    }
+
+    private async Task HandleFilter()
+    {
+        if (string.IsNullOrWhiteSpace(filterAddress) && !filterBirthYear.HasValue)
+        {
+            errorMessage = "Vui lòng chọn ít nhất một điều kiện: Nơi sinh sống hoặc Năm sinh để lọc.";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+        infoMessage = null;
+
+        try
+        {
+            var result = await CustomerService.FilterAsync(
+                string.IsNullOrWhiteSpace(filterAddress) ? null : filterAddress,
+                filterBirthYear
+            );
+            customers = result.ToList();
+            isFilteredOrSearched = true;
+
+            var conditionText = new List<string>();
+            if (!string.IsNullOrWhiteSpace(filterAddress)) conditionText.Add($"Tỉnh/Thành: {filterAddress}");
+            if (filterBirthYear.HasValue) conditionText.Add($"Năm sinh: {filterBirthYear.Value}");
+
+            infoMessage = $"Đã lọc được {customers.Count} khách hàng ({string.Join(", ", conditionText)}).";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Lỗi khi lọc dữ liệu: " + ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task ResetSearchAndFilter()
+    {
+        searchKeyword = null;
+        filterAddress = null;
+        filterBirthYear = null;
+        infoMessage = null;
+        errorMessage = null;
+        await LoadAllCustomersAsync();
     }
 
     private async Task HandleLogout()
