@@ -12,5 +12,6 @@ namespace CustomerManagementSystem.core.frontend.Models.Customer
         public string CustomerAddress { get; set; } = string.Empty;
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? DeletedAt { get; set; }
     }
 }

@@ -114,7 +114,13 @@
                     </span>
                 }
             </div>
-            <div>
+            <div class="d-flex gap-2">
+                @if (currentUser?.Role == "2")
+                {
+                    <button type="button" class="btn btn-outline-danger btn-sm" @onclick="NavigateToPendingDeletion">
+                        Xem danh sách chờ Xóa
+                    </button>
+                }
                 <button type="button" class="btn btn-primary btn-sm" @onclick="OpenCreateModal">
                     Thêm Khách Hàng Mới
                 </button>
@@ -194,9 +200,12 @@
                                             <button type="button" class="btn btn-outline-primary" @onclick="() => OpenEditModal(c)">
                                                 Sửa
                                             </button>
-                                            <button type="button" class="btn btn-outline-danger" @onclick="() => OpenDeleteModal(c)">
-                                                Xóa
-                                            </button>
+                                            @if (currentUser?.Role == "1")
+                                            {
+                                                <button type="button" class="btn btn-outline-danger" @onclick="() => OpenDeleteModal(c)">
+                                                    Yêu cầu Xóa
+                                                </button>
+                                            }
                                         </div>
                                     </td>
                                 </tr>
@@ -374,18 +383,20 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content border">
                 <div class="modal-header bg-light py-2">
-                    <h5 class="modal-title text-danger">Xác Nhận Xóa Khách Hàng</h5>
+                    <h5 class="modal-title text-danger">Xác Nhận Yêu Cầu Xóa Khách Hàng</h5>
                     <button type="button" class="btn-close" @onclick="CloseDeleteModal" disabled="@isSubmittingModal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="mb-2">Bạn có chắc chắn muốn xóa khách hàng sau khỏi hệ thống?</p>
+                    <p class="mb-2">Bạn có chắc chắn muốn gửi yêu cầu xóa khách hàng sau?</p>
                     <ul class="list-unstyled ps-2 border-start border-3 border-danger py-1 mb-2 bg-light">
                         <li><strong>Mã KH:</strong> @deletingCustomer.CustomerId</li>
                         <li><strong>Họ tên:</strong> @deletingCustomer.CustomerName</li>
                         <li><strong>Email:</strong> @deletingCustomer.CustomerEmail</li>
                         <li><strong>SĐT:</strong> @deletingCustomer.CustomerPhone</li>
                     </ul>
-                    <p class="text-danger small mb-0">Hành động này chưa xóa hẳn dữ liệu và sẽ cần yêu cầu duyệt từ phía SA</p>
+                    <div class="alert alert-warning py-1 small mb-0">
+                        <strong>Lưu ý:</strong> Hành động này chưa xóa hẳn dữ liệu. Khách hàng sẽ được đánh dấu chờ xóa và cần SA phê duyệt mới xóa hoàn toàn.
+                    </div>
                 </div>
                 <div class="modal-footer py-2 bg-light">
                     <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal" disabled="@isSubmittingModal">
@@ -394,11 +405,11 @@
                     <button type="button" class="btn btn-danger" @onclick="HandleDeleteConfirm" disabled="@isSubmittingModal">
                         @if (isSubmittingModal)
                         {
-                            <span>Đang xóa...</span>
+                            <span>Đang gửi yêu cầu...</span>
                         }
                         else
                         {
-                            <span>Xác nhận Xóa KH</span>
+                            <span>Yêu cầu Xóa</span>
                         }
                     </button>
                 </div>
@@ -693,5 +704,10 @@
     {
         await AuthService.LogoutAsync();
         Navigation.NavigateTo("admin/login");
+    }
+
+    private void NavigateToPendingDeletion()
+    {
+        Navigation.NavigateTo("admin/pending-deletion");
     }
 }

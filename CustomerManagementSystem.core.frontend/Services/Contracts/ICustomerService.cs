@@ -18,6 +18,7 @@ namespace CustomerManagementSystem.core.frontend.Services.Contracts
         Task<bool> ToggleStatusAsync(string id);
         Task<IEnumerable<CustomerDto>> SearchAsync(string keyword);
         Task<IEnumerable<CustomerDto>> FilterAsync(string? address, int? birthYear);
+        Task<IEnumerable<CustomerDto>> GetPendingDeletionAsync();
         Task<byte[]> ExportExcelAsync(DateTime fromDate, DateTime toDate);
     }
 }
