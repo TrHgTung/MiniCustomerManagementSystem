@@ -1,3 +1,5 @@
+@inject IAuthService AuthService
+
 <div class="top-row ps-3 navbar navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">TungTH</a>
@@ -22,6 +24,15 @@
                         Quản lý Khách hàng
                     </NavLink>
                 </div>
+
+                @if (context.User.IsSuperAdmin() || isSA)
+                {
+                    <div class="nav-item px-3 py-1">
+                        <NavLink class="nav-link" href="admin/pending-deletion">
+                            Danh sách chờ Xóa
+                        </NavLink>
+                    </div>
+                }
             </Authorized>
             <NotAuthorized>
                 <div class="nav-item px-3 py-1">
@@ -36,11 +47,26 @@
 
 @code {
     private bool collapseNavMenu = true;
+    private bool isSA = false;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            var user = await AuthService.GetCurrentUserInfoAsync();
+            isSA = user.IsSuperAdmin();
+        }
+        catch
+        {
+            // ignore
+        }
+    }
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
     }
 }
+

@@ -197,10 +197,19 @@
     private bool isSubmitting = false;
     private CustomerDto? deletingCustomer;
 
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthStateTask { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         currentUser = await AuthService.GetCurrentUserInfoAsync();
-        isSA = currentUser?.Role == "2";
+        isSA = currentUser.IsSuperAdmin();
+
+        if (!isSA && AuthStateTask != null)
+        {
+            var authState = await AuthStateTask;
+            isSA = authState.User.IsSuperAdmin();
+        }
 
         if (isSA)
         {
@@ -232,7 +241,7 @@
         }
     }
 
-    // === XÓA HOÀN TOÀN ===
+    // XÓA HOÀN TOÀN
     private void OpenPermanentDeleteModal(CustomerDto customer)
     {
         deletingCustomer = customer;
@@ -271,7 +280,7 @@
         }
     }
 
-    // === KHÔI PHỤC (HỦY YÊU CẦU XÓA) ===
+    // KHÔI PHỤC (HỦY YÊU CẦU XÓA)
     private async Task HandleRestoreCustomer(CustomerDto customer)
     {
         isLoading = true;
