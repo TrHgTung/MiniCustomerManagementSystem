@@ -58,27 +58,109 @@ namespace CustomerManagementSystem.core.frontend.Services.Implementations
         public async Task<CustomerDto> CreateAsync(CreateCustomerDto dto)
         {
             var response = await _httpClient.PostAsJsonAsync("admin/customers", dto);
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                string errorMessage = "Tạo mới khách hàng thất bại.";
+                try
+                {
+                    var errObj = await response.Content.ReadFromJsonAsync<ApiMessageResponse>();
+                    if (!string.IsNullOrWhiteSpace(errObj?.Message)) errorMessage = errObj.Message;
+                }
+                catch
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrWhiteSpace(raw)) errorMessage = raw;
+                }
+                throw new Exception(errorMessage);
+            }
             return (await response.Content.ReadFromJsonAsync<CustomerDto>())!;
         }
 
-        public async Task<CustomerDto> UpdateAsync(string id, UpdateCustomerDto dto)
+        public async Task<string> UpdateAsync(string id, UpdateCustomerDto dto)
         {
             var response = await _httpClient.PutAsJsonAsync($"admin/customers/{id}", dto);
-            response.EnsureSuccessStatusCode();
-            return (await response.Content.ReadFromJsonAsync<CustomerDto>())!;
+            if (!response.IsSuccessStatusCode)
+            {
+                string errorMessage = "Cập nhật khách hàng thất bại.";
+                try
+                {
+                    var errObj = await response.Content.ReadFromJsonAsync<ApiMessageResponse>();
+                    if (!string.IsNullOrWhiteSpace(errObj?.Message)) errorMessage = errObj.Message;
+                }
+                catch
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrWhiteSpace(raw)) errorMessage = raw;
+                }
+                throw new Exception(errorMessage);
+            }
+            try
+            {
+                var msgObj = await response.Content.ReadFromJsonAsync<ApiMessageResponse>();
+                return msgObj?.Message ?? "Cập nhật thành công.";
+            }
+            catch
+            {
+                return "Cập nhật thành công.";
+            }
         }
 
-        public async Task<bool> DeleteAsync(string id)
+        public async Task<string> DeleteAsync(string id)
         {
             var response = await _httpClient.DeleteAsync($"admin/customers/{id}");
-            return response.IsSuccessStatusCode;
+            if (!response.IsSuccessStatusCode)
+            {
+                string errorMessage = "Xóa khách hàng thất bại.";
+                try
+                {
+                    var errObj = await response.Content.ReadFromJsonAsync<ApiMessageResponse>();
+                    if (!string.IsNullOrWhiteSpace(errObj?.Message)) errorMessage = errObj.Message;
+                }
+                catch
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrWhiteSpace(raw)) errorMessage = raw;
+                }
+                throw new Exception(errorMessage);
+            }
+            try
+            {
+                var msgObj = await response.Content.ReadFromJsonAsync<ApiMessageResponse>();
+                return msgObj?.Message ?? "Xóa thành công.";
+            }
+            catch
+            {
+                return "Xóa thành công.";
+            }
         }
 
-        public async Task<bool> ApproveCustomerAsync(string id)
+        public async Task<string> ApproveCustomerAsync(string id)
         {
             var response = await _httpClient.PatchAsync($"admin/customers/{id}/approve", null);
-            return response.IsSuccessStatusCode;
+            if (!response.IsSuccessStatusCode)
+            {
+                string errorMessage = "Duyệt khách hàng thất bại.";
+                try
+                {
+                    var errObj = await response.Content.ReadFromJsonAsync<ApiMessageResponse>();
+                    if (!string.IsNullOrWhiteSpace(errObj?.Message)) errorMessage = errObj.Message;
+                }
+                catch
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrWhiteSpace(raw)) errorMessage = raw;
+                }
+                throw new Exception(errorMessage);
+            }
+            try
+            {
+                var msgObj = await response.Content.ReadFromJsonAsync<ApiMessageResponse>();
+                return msgObj?.Message ?? "Duyệt khách hàng thành công.";
+            }
+            catch
+            {
+                return "Duyệt khách hàng thành công.";
+            }
         }
 
         public async Task<bool> ToggleStatusAsync(string id)

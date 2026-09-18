@@ -12,9 +12,9 @@ namespace CustomerManagementSystem.core.frontend.Services.Contracts
         Task<IEnumerable<CustomerDto>> GetAllAsync();
         Task<CustomerDto?> GetByIdAsync(string id);
         Task<CustomerDto> CreateAsync(CreateCustomerDto dto);
-        Task<CustomerDto> UpdateAsync(string id, UpdateCustomerDto dto);
-        Task<bool> DeleteAsync(string id);
-        Task<bool> ApproveCustomerAsync(string id);
+        Task<string> UpdateAsync(string id, UpdateCustomerDto dto);
+        Task<string> DeleteAsync(string id);
+        Task<string> ApproveCustomerAsync(string id);
         Task<bool> ToggleStatusAsync(string id);
         Task<IEnumerable<CustomerDto>> SearchAsync(string keyword);
         Task<IEnumerable<CustomerDto>> FilterAsync(string? address, int? birthYear);

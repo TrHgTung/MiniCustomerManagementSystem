@@ -102,16 +102,23 @@
     <!-- Bảng hiển thị danh sách khách hàng -->
     <div class="card border">
         <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+            <div>
             <span>
                 <strong>Danh Sách Khách Hàng</strong> 
                 <span class="badge bg-secondary ms-2">@customers.Count kết quả</span>
             </span>
-            @if (isFilteredOrSearched)
-            {
-                <span class="badge bg-warning text-dark">
-                    Đang lọc danh sách
-                </span>
-            }
+                @if (isFilteredOrSearched)
+                {
+                    <span class="badge bg-warning text-dark ms-1">
+                        Đang lọc danh sách
+                    </span>
+                }
+            </div>
+            <div>
+                <button type="button" class="btn btn-primary btn-sm" @onclick="OpenCreateModal">
+                    Thêm Khách Hàng Mới
+                </button>
+            </div>
         </div>
 
         <div class="card-body p-0">
@@ -149,6 +156,7 @@
                                 <th>Nơi sinh sống</th>
                                 <th class="text-center">Trạng thái</th>
                                 <th>Ngày tạo</th>
+                                <th class="text-center" style="min-width: 170px;">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -175,6 +183,22 @@
                                         }
                                     </td>
                                     <td>@c.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            @if (currentUser?.Role == "2" && !c.IsActive)
+                                            {
+                                                <button type="button" class="btn btn-outline-success" @onclick="() => HandleApprove(c)" title="SA duyệt khách hàng">
+                                                    Duyệt
+                                                </button>
+                                            }
+                                            <button type="button" class="btn btn-outline-primary" @onclick="() => OpenEditModal(c)">
+                                                Sửa
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger" @onclick="() => OpenDeleteModal(c)">
+                                                Xóa
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                             }
                         </tbody>
@@ -185,6 +209,203 @@
     </div>
 
 </div>
+
+<!-- MODAL THÊM MỚI KHÁCH HÀNG -->
+@if (showCreateModal)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border">
+                <div class="modal-header bg-light py-2">
+                    <h5 class="modal-title text-primary">Thêm Mới Khách Hàng</h5>
+                    <button type="button" class="btn-close" @onclick="CloseCreateModal" disabled="@isSubmittingModal"></button>
+                </div>
+                <EditForm Model="@createModel" OnValidSubmit="HandleCreateSubmit">
+                    <DataAnnotationsValidator />
+                    <div class="modal-body">
+                        @if (currentUser?.Role == "1")
+                        {
+                            <div class="alert alert-warning py-1 small mb-3">
+                                <strong>Lưu ý:</strong> Với vai trò Manager, khách hàng sau khi tạo sẽ ở trạng thái <strong>Chờ duyệt</strong> và cần SA phê duyệt.
+                            </div>
+                        }
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Họ và tên <span class="text-danger">*</span></label>
+                            <InputText class="form-control" placeholder="Nhập họ và tên" @bind-Value="createModel.CustomerName" />
+                            <ValidationMessage For="@(() => createModel.CustomerName)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Email <span class="text-danger">*</span></label>
+                            <InputText type="email" class="form-control" placeholder="example@email.com" @bind-Value="createModel.CustomerEmail" />
+                            <ValidationMessage For="@(() => createModel.CustomerEmail)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Số điện thoại <span class="text-danger">*</span></label>
+                            <InputText type="tel" class="form-control" placeholder="0912345678" @bind-Value="createModel.CustomerPhone" />
+                            <ValidationMessage For="@(() => createModel.CustomerPhone)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Ngày sinh <span class="text-danger">*</span></label>
+                            <InputDate class="form-control" @bind-Value="createModel.CustomerBirth" />
+                            <ValidationMessage For="@(() => createModel.CustomerBirth)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Nơi sinh sống (Tỉnh/Thành) <span class="text-danger">*</span></label>
+                            <InputSelect class="form-select" @bind-Value="createModel.CustomerAddress">
+                                <option value="">-- Chọn Tỉnh / Thành phố --</option>
+                                @foreach (var p in ProvinceConstants.List)
+                                {
+                                    <option value="@p">@p</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => createModel.CustomerAddress)" class="text-danger small" />
+                        </div>
+                    </div>
+                    <div class="modal-footer py-2 bg-light">
+                        <button type="button" class="btn btn-outline-secondary" @onclick="CloseCreateModal" disabled="@isSubmittingModal">
+                            Hủy bỏ
+                        </button>
+                        <button type="submit" class="btn btn-primary" disabled="@isSubmittingModal">
+                            @if (isSubmittingModal)
+                            {
+                                <span>Đang lưu...</span>
+                            }
+                            else
+                            {
+                                <span>Lưu khách hàng</span>
+                            }
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- MODAL CẬP NHẬT KHÁCH HÀNG -->
+@if (showEditModal && editingCustomer != null)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border">
+                <div class="modal-header bg-light py-2">
+                    <h5 class="modal-title text-primary">Cập Nhật Khách Hàng (@editingCustomer.CustomerId)</h5>
+                    <button type="button" class="btn-close" @onclick="CloseEditModal" disabled="@isSubmittingModal"></button>
+                </div>
+                <EditForm Model="@editModel" OnValidSubmit="HandleEditSubmit">
+                    <DataAnnotationsValidator />
+                    <div class="modal-body">
+                        @if (currentUser?.Role == "1")
+                        {
+                            <div class="alert alert-warning py-1 small mb-3">
+                                <strong>Lưu ý:</strong> Với vai trò Manager, sau khi cập nhật thông tin khách hàng sẽ chuyển về trạng thái <strong>Chờ duyệt lại</strong> bởi SA.
+                            </div>
+                        }
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Họ và tên <span class="text-danger">*</span></label>
+                            <InputText class="form-control" @bind-Value="editModel.CustomerName" />
+                            <ValidationMessage For="@(() => editModel.CustomerName)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Email <span class="text-danger">*</span></label>
+                            <InputText type="email" class="form-control" @bind-Value="editModel.CustomerEmail" />
+                            <ValidationMessage For="@(() => editModel.CustomerEmail)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Số điện thoại <span class="text-danger">*</span></label>
+                            <InputText type="tel" class="form-control" @bind-Value="editModel.CustomerPhone" />
+                            <ValidationMessage For="@(() => editModel.CustomerPhone)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Ngày sinh <span class="text-danger">*</span></label>
+                            <InputDate class="form-control" @bind-Value="editModel.CustomerBirth" />
+                            <ValidationMessage For="@(() => editModel.CustomerBirth)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Nơi sinh sống (Tỉnh/Thành) <span class="text-danger">*</span></label>
+                            <InputSelect class="form-select" @bind-Value="editModel.CustomerAddress">
+                                <option value="">-- Chọn Tỉnh / Thành phố --</option>
+                                @foreach (var p in ProvinceConstants.List)
+                                {
+                                    <option value="@p">@p</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => editModel.CustomerAddress)" class="text-danger small" />
+                        </div>
+                    </div>
+                    <div class="modal-footer py-2 bg-light">
+                        <button type="button" class="btn btn-outline-secondary" @onclick="CloseEditModal" disabled="@isSubmittingModal">
+                            Hủy bỏ
+                        </button>
+                        <button type="submit" class="btn btn-primary" disabled="@isSubmittingModal">
+                            @if (isSubmittingModal)
+                            {
+                                <span>Đang cập nhật...</span>
+                            }
+                            else
+                            {
+                                <span>Cập nhật</span>
+                            }
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- MODAL XÁC NHẬN XÓA -->
+@if (showDeleteModal && deletingCustomer != null)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border">
+                <div class="modal-header bg-light py-2">
+                    <h5 class="modal-title text-danger">Xác Nhận Xóa Khách Hàng</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDeleteModal" disabled="@isSubmittingModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2">Bạn có chắc chắn muốn xóa khách hàng sau khỏi hệ thống?</p>
+                    <ul class="list-unstyled ps-2 border-start border-3 border-danger py-1 mb-2 bg-light">
+                        <li><strong>Mã KH:</strong> @deletingCustomer.CustomerId</li>
+                        <li><strong>Họ tên:</strong> @deletingCustomer.CustomerName</li>
+                        <li><strong>Email:</strong> @deletingCustomer.CustomerEmail</li>
+                        <li><strong>SĐT:</strong> @deletingCustomer.CustomerPhone</li>
+                    </ul>
+                    <p class="text-danger small mb-0">Hành động này chưa xóa hẳn dữ liệu và sẽ cần yêu cầu duyệt từ phía SA</p>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal" disabled="@isSubmittingModal">
+                        Không, Hủy bỏ
+                    </button>
+                    <button type="button" class="btn btn-danger" @onclick="HandleDeleteConfirm" disabled="@isSubmittingModal">
+                        @if (isSubmittingModal)
+                        {
+                            <span>Đang xóa...</span>
+                        }
+                        else
+                        {
+                            <span>Xác nhận Xóa KH</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     private OrgMemberDto? currentUser;
@@ -200,22 +421,16 @@
     private string? errorMessage;
     private string? infoMessage;
 
-    private readonly string[] Provinces = new[]
-    {
-        "Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ",
-        "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu",
-        "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước",
-        "Bình Thuận", "Cà Mau", "Cao Bằng", "Đắk Lắk", "Đắk Nông",
-        "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Giang",
-        "Hà Nam", "Hà Tĩnh", "Hải Dương", "Hậu Giang", "Hòa Bình",
-        "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu",
-        "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định",
-        "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên",
-        "Quảng Bình", "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị",
-        "Sóc Trăng", "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên",
-        "Thanh Hóa", "Thừa Thiên Huế", "Tiền Giang", "Trà Vinh", "Tuyên Quang",
-        "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"
-    };
+    // Trạng thái modal
+    private bool showCreateModal = false;
+    private bool showEditModal = false;
+    private bool showDeleteModal = false;
+    private bool isSubmittingModal = false;
+
+    private CreateCustomerDto createModel = new();
+    private UpdateCustomerDto editModel = new();
+    private CustomerDto? editingCustomer;
+    private CustomerDto? deletingCustomer;
 
     protected override async Task OnInitializedAsync()
     {
@@ -326,6 +541,152 @@
         infoMessage = null;
         errorMessage = null;
         await LoadAllCustomersAsync();
+    }
+
+    private void OpenCreateModal()
+    {
+        createModel = new CreateCustomerDto
+        {
+            CustomerBirth = DateTime.Today.AddYears(-20)
+        };
+        errorMessage = null;
+        showCreateModal = true;
+    }
+
+    private void CloseCreateModal()
+    {
+        showCreateModal = false;
+        isSubmittingModal = false;
+    }
+
+    private async Task HandleCreateSubmit()
+    {
+        isSubmittingModal = true;
+        errorMessage = null;
+
+        try
+        {
+            var created = await CustomerService.CreateAsync(createModel);
+            CloseCreateModal();
+            infoMessage = currentUser?.Role == "1"
+                ? $"Thêm mới khách hàng '{created.CustomerName}' thành công (Trạng thái: Chờ SA duyệt)."
+                : $"Thêm mới khách hàng '{created.CustomerName}' thành công (Trạng thái: Đã kích hoạt).";
+            await LoadAllCustomersAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isSubmittingModal = false;
+        }
+    }
+
+    // === THAO TÁC CHỈNH SỬA ===
+    private void OpenEditModal(CustomerDto customer)
+    {
+        editingCustomer = customer;
+        editModel = new UpdateCustomerDto
+        {
+            CustomerName = customer.CustomerName,
+            CustomerEmail = customer.CustomerEmail,
+            CustomerPhone = customer.CustomerPhone,
+            CustomerBirth = customer.CustomerBirth,
+            CustomerAddress = customer.CustomerAddress,
+            IsActive = customer.IsActive
+        };
+        errorMessage = null;
+        showEditModal = true;
+    }
+
+    private void CloseEditModal()
+    {
+        showEditModal = false;
+        editingCustomer = null;
+        isSubmittingModal = false;
+    }
+
+    private async Task HandleEditSubmit()
+    {
+        if (editingCustomer == null) return;
+
+        isSubmittingModal = true;
+        errorMessage = null;
+
+        try
+        {
+            var message = await CustomerService.UpdateAsync(editingCustomer.CustomerId, editModel);
+            CloseEditModal();
+            infoMessage = message;
+            await LoadAllCustomersAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isSubmittingModal = false;
+        }
+    }
+
+    // === THAO TÁC XÓA (YES / NO) ===
+    private void OpenDeleteModal(CustomerDto customer)
+    {
+        deletingCustomer = customer;
+        errorMessage = null;
+        showDeleteModal = true;
+    }
+
+    private void CloseDeleteModal()
+    {
+        showDeleteModal = false;
+        deletingCustomer = null;
+        isSubmittingModal = false;
+    }
+
+    private async Task HandleDeleteConfirm()
+    {
+        if (deletingCustomer == null) return;
+
+        isSubmittingModal = true;
+        errorMessage = null;
+
+        try
+        {
+            var msg = await CustomerService.DeleteAsync(deletingCustomer.CustomerId);
+            CloseDeleteModal();
+            infoMessage = msg;
+            await LoadAllCustomersAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isSubmittingModal = false;
+        }
+    }
+
+    // === THAO TÁC DUYỆT (APPROVE CHO SA) ===
+    private async Task HandleApprove(CustomerDto customer)
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var msg = await CustomerService.ApproveCustomerAsync(customer.CustomerId);
+            infoMessage = msg;
+            await LoadAllCustomersAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            isLoading = false;
+        }
     }
 
     private async Task HandleLogout()
