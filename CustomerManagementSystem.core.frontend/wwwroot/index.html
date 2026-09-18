@@ -26,6 +26,21 @@
         <a href="." class="reload">Reload</a>
         <span class="dismiss">🗙</span>
     </div>
+    <!-- đoạn script này để xử lý tải file excel từ Blazor Assembly 
+     code C# của source frontend mặc dịnh chạy trong sandbox của browser, nên code data từ backend xuất sang sheet không thể trực tiếp download -->
+    <script>
+        window.downloadFileFromByteArray = function (fileName, contentType, byteArray) {
+            const blob = new Blob([new Uint8Array(byteArray)], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = fileName;
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
+            URL.revokeObjectURL(url);
+        };
+    </script>
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
 

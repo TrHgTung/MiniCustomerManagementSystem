@@ -115,6 +115,9 @@
                 }
             </div>
             <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-success btn-sm" @onclick="NavigateToExport">
+                    Xuất Excel
+                </button>
                 @if (isSA)
                 {
                     <button type="button" class="btn btn-outline-danger btn-sm" @onclick="NavigateToPendingDeletion">
@@ -752,5 +755,10 @@
     private void NavigateToPendingDeletion()
     {
         Navigation.NavigateTo("admin/pending-deletion");
+    }
+
+    private void NavigateToExport()
+    {
+        Navigation.NavigateTo("admin/export");
     }
 }

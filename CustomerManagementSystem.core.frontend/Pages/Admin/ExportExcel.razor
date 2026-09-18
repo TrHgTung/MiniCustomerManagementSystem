@@ -1,0 +1,300 @@
+@page "/admin/export"
+@attribute [Authorize]
+@inject IAuthService AuthService
+@inject ICustomerService CustomerService
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+<PageTitle>Xuất Báo Cáo Excel</PageTitle>
+
+<div class="container-fluid py-3">
+    <!-- TIÊU ĐỀ TRANG -->
+    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+        <div>
+            <h4 class="mb-0 text-success">Xuất Dữ Liệu Khách Hàng Ra Excel</h4>
+            <small class="text-muted">
+                Xin chào: <strong>@(currentUser?.OrgName ?? "Quản trị viên")</strong> | 
+                Vai trò: <strong>@(isSA ? "SA account (Toàn bộ dữ liệu)" : "Manager account (Dữ liệu đã kích hoạt)")</strong>
+            </small>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-primary btn-sm" @onclick="NavigateToCustomers">
+                Quản lý Khách hàng
+            </button>
+            <button type="button" class="btn btn-outline-danger btn-sm" @onclick="HandleLogout">
+                Đăng xuất
+            </button>
+        </div>
+    </div>
+
+    <!-- THÔNG BÁO -->
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show py-2 mb-3" role="alert">
+            <strong>Lỗi:</strong> @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show py-2 mb-3" role="alert">
+            <strong>Thành công:</strong> @successMessage
+            <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+        </div>
+    }
+
+    <!-- CARD LỌC VÀ XUẤT EXCEL -->
+    <div class="card border mb-3">
+        <div class="card-header bg-light py-2">
+            <strong>Bộ lọc khoảng thời gian xuất file</strong>
+        </div>
+        <div class="card-body p-3">
+            <!-- Ghi chú về quyền hạn xuất file -->
+            <div class="alert alert-info py-2 small mb-3">
+                @if (isSA)
+                {
+                    <span>File Excel xuất ra sẽ bao gồm toàn bộ khách hàng trong khoảng thời gian đã chọn (gồm cả KH đang chờ duyệt)</span>
+                }
+                else
+                {
+                    <span>File Excel xuất ra sẽ chỉ xuất các khách hàng đã được kích hoạt (IsActive = true) trong khoảng thời gian đã chọn</span>
+                }
+            </div>
+
+            <!-- Các nút chọn nhanh khoảng thời gian -->
+            <div class="mb-3">
+                <label class="form-label small fw-bold mb-1 d-block">Chọn nhanh khoảng thời gian:</label>
+                <div class="btn-group btn-group-sm flex-wrap" role="group">
+                    <button type="button" class="btn btn-outline-secondary" @onclick="SetToday" disabled="@isExporting">
+                        Hôm nay
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="SetLast7Days" disabled="@isExporting">
+                        7 ngày qua
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="SetLast30Days" disabled="@isExporting">
+                        30 ngày qua
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="SetThisMonth" disabled="@isExporting">
+                        Tháng này
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="SetThisYear" disabled="@isExporting">
+                        Năm nay
+                    </button>
+                </div>
+            </div>
+
+            <!-- Form chọn ngày FromDate và ToDate -->
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-4">
+                    <label class="form-label small fw-bold mb-1">
+                        Từ ngày (FromDate) <span class="text-danger">*</span>
+                    </label>
+                    <input type="date"
+                           class="form-control"
+                           @bind="fromDate"
+                           disabled="@isExporting" />
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label small fw-bold mb-1">
+                        Đến ngày (ToDate) <span class="text-danger">*</span>
+                    </label>
+                    <input type="date"
+                           class="form-control"
+                           @bind="toDate"
+                           disabled="@isExporting" />
+                </div>
+
+                <div class="col-12 col-md-4 d-flex gap-2">
+                    <button type="button"
+                            class="btn btn-success flex-fill"
+                            @onclick="HandleExport"
+                            disabled="@isExporting">
+                        @if (isExporting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            <span>Đang xuất file...</span>
+                        }
+                        else
+                        {
+                            <span>Xuất Excel</span>
+                        }
+                    </button>
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            @onclick="ResetDates"
+                            disabled="@isExporting"
+                            title="Đặt lại về 30 ngày qua">
+                        Đặt lại
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARD HƯỚNG DẪN / THÔNG TIN CỘT EXCEL -->
+    <div class="card border">
+        <div class="card-header bg-light py-2">
+            <strong>Cấu trúc dữ liệu trong file Excel xuất ra</strong>
+        </div>
+        <div class="card-body p-3">
+            <p class="small text-muted mb-2">
+                File Excel (.xlsx) được xuất theo định dạng chuẩn bảng tính, bao gồm các cột thông tin sau:
+            </p>
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center" style="width: 50px;">STT</th>
+                            <th>Mã Khách Hàng</th>
+                            <th>Họ và Tên</th>
+                            <th>Email</th>
+                            <th>Số Điện Thoại</th>
+                            <th>Ngày Sinh</th>
+                            <th>Nơi Sinh Sống</th>
+                            <th class="text-center">Trạng Thái</th>
+                            <th>Ngày Tạo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center">1</td>
+                            <td>KH00000001</td>
+                            <td>Nguyễn Văn A</td>
+                            <td>nguyenvana@example.com</td>
+                            <td>0901234567</td>
+                            <td>15/05/1995</td>
+                            <td>TP. Hồ Chí Minh</td>
+                            <td class="text-center"><span class="badge bg-success">Khách hàng</span></td>
+                            <td>18/09/2026 10:30</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private OrgMemberDto? currentUser;
+    private bool isSA = false;
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+    // Khoảng thời gian mặc định: 30 ngày gần nhất đến hôm nay
+    private DateTime fromDate = DateTime.Today.AddDays(-30);
+    private DateTime toDate = DateTime.Today;
+
+    private bool isExporting = false;
+    private string? errorMessage;
+    private string? successMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthService.GetCurrentUserInfoAsync();
+        isSA = currentUser.IsSuperAdmin();
+
+        if (!isSA && AuthStateTask != null)
+        {
+            var authState = await AuthStateTask;
+            isSA = authState.User.IsSuperAdmin();
+        }
+    }
+
+    // === CÁC PHƯƠNG THỨC CHỌN NHANH KHOẢNG THỜI GIAN ===
+    private void SetToday()
+    {
+        fromDate = DateTime.Today;
+        toDate = DateTime.Today;
+        errorMessage = null;
+    }
+
+    private void SetLast7Days()
+    {
+        fromDate = DateTime.Today.AddDays(-7);
+        toDate = DateTime.Today;
+        errorMessage = null;
+    }
+
+    private void SetLast30Days()
+    {
+        fromDate = DateTime.Today.AddDays(-30);
+        toDate = DateTime.Today;
+        errorMessage = null;
+    }
+
+    private void SetThisMonth()
+    {
+        var now = DateTime.Today;
+        fromDate = new DateTime(now.Year, now.Month, 1);
+        toDate = fromDate.AddMonths(1).AddDays(-1);
+        errorMessage = null;
+    }
+
+    private void SetThisYear()
+    {
+        var now = DateTime.Today;
+        fromDate = new DateTime(now.Year, 1, 1);
+        toDate = new DateTime(now.Year, 12, 31);
+        errorMessage = null;
+    }
+
+    private void ResetDates()
+    {
+        SetLast30Days();
+    }
+
+    // === XỬ LÝ XUẤT FILE EXCEL ===
+    private async Task HandleExport()
+    {
+        errorMessage = null;
+        successMessage = null;
+
+        if (fromDate > toDate)
+        {
+            errorMessage = "Ngày bắt đầu (FromDate) không được lớn hơn ngày kết thúc (ToDate).";
+            return;
+        }
+
+        isExporting = true;
+
+        try
+        {
+            var fileBytes = await CustomerService.ExportExcelAsync(fromDate, toDate);
+
+            if (fileBytes == null || fileBytes.Length == 0)
+            {
+                errorMessage = "Không nhận được dữ liệu file từ máy chủ.";
+                return;
+            }
+
+            string fileName = $"DanhSachKH_{fromDate:yyyyMMdd}_{toDate:yyyyMMdd}_{Guid.NewGuid().ToString().Substring(0, 6)}.xlsx";
+            string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+            // Gọi hàm JS để tải file về máy
+            await JS.InvokeVoidAsync("downloadFileFromByteArray", fileName, contentType, fileBytes);
+
+            successMessage = $"Đã xuất và tải về file '{fileName}' thành công!";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isExporting = false;
+        }
+    }
+
+    private void NavigateToCustomers()
+    {
+        Navigation.NavigateTo("admin/customers");
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("admin/login");
+    }
+}
