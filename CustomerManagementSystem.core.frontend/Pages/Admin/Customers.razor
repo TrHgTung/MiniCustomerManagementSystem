@@ -206,6 +206,12 @@
                                                     Yêu cầu Xóa
                                                 </button>
                                             }
+                                            @if (isSA)
+                                            {
+                                                <button type="button" class="btn btn-outline-danger" @onclick="() => HandlePermanentDelete(c)">
+                                                    Xóa vĩnh viễn
+                                                </button>
+                                            }
                                         </div>
                                     </td>
                                 </tr>
@@ -383,20 +389,29 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content border">
                 <div class="modal-header bg-light py-2">
-                    <h5 class="modal-title text-danger">Xác Nhận Yêu Cầu Xóa Khách Hàng</h5>
+                    <h5 class="modal-title text-danger">@(isSA ? "Xác Nhận Xóa Vĩnh Viễn Khách Hàng" : "Xác Nhận Yêu Cầu Xóa Khách Hàng")</h5>
                     <button type="button" class="btn-close" @onclick="CloseDeleteModal" disabled="@isSubmittingModal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="mb-2">Bạn có chắc chắn muốn gửi yêu cầu xóa khách hàng sau?</p>
+                    <p class="mb-2">@(isSA ? "Bạn có chắc chắn muốn xóa vĩnh viễn khách hàng sau khỏi hệ thống?" : "Bạn có chắc chắn muốn gửi yêu cầu xóa khách hàng sau?")</p>
                     <ul class="list-unstyled ps-2 border-start border-3 border-danger py-1 mb-2 bg-light">
                         <li><strong>Mã KH:</strong> @deletingCustomer.CustomerId</li>
                         <li><strong>Họ tên:</strong> @deletingCustomer.CustomerName</li>
                         <li><strong>Email:</strong> @deletingCustomer.CustomerEmail</li>
                         <li><strong>SĐT:</strong> @deletingCustomer.CustomerPhone</li>
                     </ul>
-                    <div class="alert alert-warning py-1 small mb-0">
-                        <strong>Lưu ý:</strong> Hành động này chưa xóa hẳn dữ liệu. Khách hàng sẽ được đánh dấu chờ xóa và cần SA phê duyệt mới xóa hoàn toàn.
-                    </div>
+                    @if (isSA)
+                    {
+                        <div class="alert alert-danger py-1 small mb-0">
+                            <strong>Cảnh báo:</strong> Hành động này sẽ xóa vĩnh viễn dữ liệu khách hàng khỏi hệ thống và <strong>không thể khôi phục</strong>.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning py-1 small mb-0">
+                            <strong>Lưu ý:</strong> Hành động này chưa xóa hẳn dữ liệu. Khách hàng sẽ được đánh dấu chờ xóa và cần SA phê duyệt mới xóa hoàn toàn.
+                        </div>
+                    }
                 </div>
                 <div class="modal-footer py-2 bg-light">
                     <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal" disabled="@isSubmittingModal">
@@ -405,11 +420,11 @@
                     <button type="button" class="btn btn-danger" @onclick="HandleDeleteConfirm" disabled="@isSubmittingModal">
                         @if (isSubmittingModal)
                         {
-                            <span>Đang gửi yêu cầu...</span>
+                            <span>@(isSA ? "Đang xóa..." : "Đang gửi yêu cầu...")</span>
                         }
                         else
                         {
-                            <span>Yêu cầu Xóa</span>
+                            <span>@(isSA ? "Xóa vĩnh viễn" : "Yêu cầu Xóa")</span>
                         }
                     </button>
                 </div>
@@ -653,9 +668,23 @@
         }
     }
 
-    // KÍCH HOẠT HỘP MODAL XÓA (YES / NO)
+    // KÍCH HOẠT HỘP MODAL XÓA
     private void OpenDeleteModal(CustomerDto customer)
     {
+        deletingCustomer = customer;
+        errorMessage = null;
+        showDeleteModal = true;
+    }
+
+    // XỬ LÝ XÓA VĨNH VIỄN TRỰC TIẾP (DÀNH RIÊNG CHO SA)
+    private void HandlePermanentDelete(CustomerDto customer)
+    {
+        if (!isSA)
+        {
+            errorMessage = "Chỉ Super Admin (SA) mới có quyền xóa vĩnh viễn khách hàng.";
+            return;
+        }
+
         deletingCustomer = customer;
         errorMessage = null;
         showDeleteModal = true;
@@ -677,9 +706,12 @@
 
         try
         {
+            var customerName = deletingCustomer.CustomerName;
             var msg = await CustomerService.DeleteAsync(deletingCustomer.CustomerId);
             CloseDeleteModal();
-            infoMessage = msg;
+            infoMessage = !string.IsNullOrWhiteSpace(msg) 
+                ? msg 
+                : (isSA ? $"Đã xóa vĩnh viễn KH này" : "Yêu cầu xóa đã được gửi, chờ SA duyệt");
             await LoadAllCustomersAsync();
         }
         catch (Exception ex)
