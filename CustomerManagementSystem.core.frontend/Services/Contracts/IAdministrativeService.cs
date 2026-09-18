@@ -7,6 +7,6 @@ namespace CustomerManagementSystem.core.frontend.Services.Contracts
         Task<IEnumerable<ManagerDto>> GetAllManagersAsync();
         Task<ManagerDto?> GetManagerByIdAsync(string id);
         Task<ManagerDto> CreateManagerAsync(CreateManagerDto dto);
-        Task<bool> ToggleManagerStatusAsync(string id);
+        Task<string> DeactivateManagerAsync(string id);
     }
 }
