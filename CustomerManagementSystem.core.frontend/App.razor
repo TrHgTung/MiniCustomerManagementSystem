@@ -1,12 +1,33 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-    <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
-        </LayoutView>
-    </NotFound>
-</Router>
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    <div class="container mt-5 text-center">
+                        <div class="card shadow-sm p-4 mx-auto" style="max-width: 480px;">
+                            <h3 class="text-danger mb-3">Yêu cầu đăng nhập</h3>
+                            <p class="text-muted">Bạn chưa đăng nhập hoặc không có quyền truy cập vào chức năng này.</p>
+                            <a href="admin/login" class="btn btn-primary mt-2">Đi đến trang Đăng nhập</a>
+                        </div>
+                    </div>
+                </NotAuthorized>
+                <Authorizing>
+                    <div class="text-center p-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted">Đang kiểm tra quyền truy cập...</p>
+                    </div>
+                </Authorizing>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Không tìm thấy trang</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <div class="container text-center mt-5">
+                    <h2 class="text-muted">404 - Không tìm thấy trang yêu cầu</h2>
+                    <a href="/" class="btn btn-outline-primary mt-3">Quay về trang chủ</a>
+                </div>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
