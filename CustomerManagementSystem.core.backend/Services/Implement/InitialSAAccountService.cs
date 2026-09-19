@@ -38,7 +38,7 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
             var saId = _configuration["InitialAdmin:OrgId"];
 
             // Kiểm tra nếu không có cấu hình
-            if (string.IsNullOrEmpty(saEmail) || string.IsNullOrEmpty(saPassword))
+            if (string.IsNullOrWhiteSpace(saEmail) || string.IsNullOrWhiteSpace(saPassword) || string.IsNullOrWhiteSpace(saName) || string.IsNullOrWhiteSpace(saPhone) || string.IsNullOrWhiteSpace(saId))
             {
                 _logger.LogWarning("Không tìm thấy cấu hình tài khoản SA mặc định trong appsetting.json");
                 return;

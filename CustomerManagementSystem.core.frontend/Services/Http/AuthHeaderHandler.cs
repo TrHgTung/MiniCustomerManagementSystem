@@ -16,7 +16,7 @@ namespace CustomerManagementSystem.core.frontend.Services.Http
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var token = await _localStorage.GetItemAsync<string>(TokenKey);
-            if (!string.IsNullOrWhiteSpace(token))
+            if (!string.IsNullOrWhiteSpace(token) && request.Headers.Authorization == null)
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }

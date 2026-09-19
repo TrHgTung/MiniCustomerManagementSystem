@@ -5,11 +5,14 @@ using CustomerManagementSystem.core.backend.Repositories.Interface;
 using CustomerManagementSystem.core.backend.Services.Implement;
 using CustomerManagementSystem.core.backend.Services.Interface;
 using CustomerManagementSystem.core.backend.Configurations;
+using CustomerManagementSystem.core.backend.Helpers.Attributes;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,13 +30,41 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsFrontend", policy =>
     {
-        policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
+        policy.WithOrigins("http://localhost:4402")
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowCredentials()
+              .WithExposedHeaders("X-Idempotency-Replayed");
     });
 });
 
+// rate limit configuảtion
+builder.Services.AddRateLimiter(options =>
+{
+    // Rule 1: customer (form)
+    options.AddFixedWindowLimiter("Customer", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 10;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueLimit = 0;
+    });
+    // Rule 2: administrative
+    options.AddFixedWindowLimiter("Admin", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 100;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueLimit = 0;
+    });
+    // Rule 3: Admin login
+    options.AddFixedWindowLimiter("AdminLogin", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 15;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueLimit = 0;
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 
 // Swagger / OpenAPI Configuration
 builder.Services.AddEndpointsApiExplorer();
@@ -71,6 +102,9 @@ builder.Services.AddSwaggerGen(options =>
             Array.Empty<string>()
         }
     });
+
+    // Cho nhập idemp key trên swagger docs
+    options.OperationFilter<IdempotencyHeaderOperationFilter>();
 });
 
 // Database Context
@@ -128,6 +162,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IInitialSAAccountService, InitialSAAccountService>();
 builder.Services.AddScoped<IAdministrativeService, AdministrativeService>();
 builder.Services.AddScoped<IExcelExportService, ExportExcelService>();
+builder.Services.AddScoped<IIdempotencyService, IdempotencyService>();
+
+// Đăng ký IdempotencyFilter
+builder.Services.AddScoped<IdempotencyFilter>();
 
 var app = builder.Build();
 
@@ -148,6 +186,8 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

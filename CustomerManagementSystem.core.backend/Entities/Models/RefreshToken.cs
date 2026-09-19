@@ -12,7 +12,12 @@ namespace CustomerManagementSystem.core.backend.Entities.Models
 
         [Required]
         [StringLength(128)]
-        public string Token { get; set; } // Token from client
+        public string Token { get; set; } = string.Empty; // Token from client
+
+        [MaxLength(128)]
+        public string? OrgId { get; set; }
+
+        public OrgMember? OrgMember { get; set; }
 
         [Required]
         public bool IsActive { get; set; } = true; // Trang thai hoat dong
