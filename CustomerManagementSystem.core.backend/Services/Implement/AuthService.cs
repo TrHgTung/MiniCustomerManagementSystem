@@ -15,10 +15,10 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
         private readonly IOrgMemberRepository _orgMemberRepository;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IConfiguration _configuration;
+        private readonly int _accessTokenLifetimeMinutes;
+        private readonly int _refreshTokenLifetimeDays;
         private readonly ILogger<AuthService> _logger;
 
-        private const int RefreshTokenLifetimeDays = 7;
-        private const int AccessTokenLifetimeHours = 2;
 
         public AuthService(
             IOrgMemberRepository orgMemberRepository,
@@ -29,6 +29,13 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
             _orgMemberRepository = orgMemberRepository;
             _refreshTokenRepository = refreshTokenRepository;
             _configuration = configuration;
+            _accessTokenLifetimeMinutes = configuration.GetValue<int>("Jwt:AccessTokenLifetimeMinutes");
+            _refreshTokenLifetimeDays = configuration.GetValue<int>("Jwt:RefreshTokenLifetimeDays");
+
+            if (_accessTokenLifetimeMinutes <= 0 || _refreshTokenLifetimeDays <= 0)
+            {
+                throw new InvalidOperationException("JWT token lifetimes must be greater than zero.");
+            }
             _logger = logger;
         }
 
@@ -104,7 +111,7 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
                 throw new SecurityTokenException("Refresh token không hợp lệ hoặc đã bị vô hiệu hóa.");
             }
 
-            if (storedRefreshToken.CreatedAt.AddDays(RefreshTokenLifetimeDays) < DateTime.UtcNow)
+            if (storedRefreshToken.CreatedAt.AddDays(_refreshTokenLifetimeDays) < DateTime.UtcNow)
             {
                 await _refreshTokenRepository.RevokeAsync(storedRefreshToken.Token);
                 throw new SecurityTokenException("Refresh token đã hết hạn sử dụng.");
@@ -163,10 +170,10 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
         private (string token, DateTime expiresAt) GenerateAccessToken(OrgMember member)
         {
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]
-                ?? throw new InvalidOperationException("Chưa cấu hình Jwt:Key"));
+                ?? throw new InvalidOperationException("Jwt:Key is missing from configuration."));
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var expiresAt = DateTime.UtcNow.AddHours(AccessTokenLifetimeHours);
+            var expiresAt = DateTime.UtcNow.AddMinutes(_accessTokenLifetimeMinutes);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -213,7 +220,8 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!)),
+                    Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]
+                        ?? throw new InvalidOperationException("Jwt:Key is missing from configuration."))),
                 ValidateLifetime = false // Bỏ qua hạn dùng để đọc claims
             };
 
