@@ -161,6 +161,10 @@ namespace CustomerManagementSystem.core.backend.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<string>("OrgId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasMaxLength(128)
@@ -168,7 +172,19 @@ namespace CustomerManagementSystem.core.backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrgId");
+
                     b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("CustomerManagementSystem.core.backend.Entities.Models.RefreshToken", b =>
+                {
+                    b.HasOne("CustomerManagementSystem.core.backend.Entities.Models.OrgMember", "OrgMember")
+                        .WithMany()
+                        .HasForeignKey("OrgId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("OrgMember");
                 });
 #pragma warning restore 612, 618
         }

@@ -19,6 +19,15 @@ namespace CustomerManagementSystem.core.backend.Entities.AppDataContext
             modelBuilder.Entity<Idempotency>()
                 .HasIndex(x => x.Key)
                 .IsUnique();
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasIndex(x => x.OrgId);
+                entity.HasOne(x => x.OrgMember)
+                    .WithMany()
+                    .HasForeignKey(x => x.OrgId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }
