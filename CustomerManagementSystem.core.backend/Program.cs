@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +36,33 @@ builder.Services.AddCors(options =>
     });
 });
 
+// rate limit configuảtion
+builder.Services.AddRateLimiter(options =>
+{
+    // Rule 1: customer (form)
+    options.AddFixedWindowLimiter("Customer", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 10;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueLimit = 0;
+    });
+    // Rule 2: administrative
+    options.AddFixedWindowLimiter("Admin", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 100;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueLimit = 0;
+    });
+    // Rule 3: Admin login
+    options.AddFixedWindowLimiter("AdminLogin", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 15;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueLimit = 0;
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 
 // Swagger / OpenAPI Configuration
 builder.Services.AddEndpointsApiExplorer();
@@ -148,6 +177,8 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

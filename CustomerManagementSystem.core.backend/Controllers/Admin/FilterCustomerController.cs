@@ -3,6 +3,7 @@ using CustomerManagementSystem.core.backend.Helpers;
 using CustomerManagementSystem.core.backend.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace CustomerManagementSystem.core.backend.Controllers.Admin
 {
@@ -12,6 +13,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
     /// SA (Role="2"): lọc trên toàn bộ KH
     /// Manager (Role="1"): chỉ lọc trên các KH có IsActive = true
     /// </summary>
+    [EnableRateLimiting("Admin")]
     [Authorize(Policy = "ManagerOrAdmin")]
     [ApiController]
     [Route("admin/customers/filter")]

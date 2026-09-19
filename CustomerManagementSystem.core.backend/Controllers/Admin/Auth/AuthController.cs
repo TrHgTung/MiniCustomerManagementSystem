@@ -3,6 +3,7 @@ using CustomerManagementSystem.core.backend.Data.DTO.Auth;
 using CustomerManagementSystem.core.backend.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace CustomerManagementSystem.core.backend.Controllers.Admin.Auth
@@ -11,6 +12,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin.Auth
     /// API: api/v1/admin/auth
     /// Xử lý đăng nhập, phân quyền, refresh token và đăng xuất
     /// </summary>
+    [EnableRateLimiting("AdminLogin")]
     [ApiController]
     [Route("admin/auth")]
     public class AuthController : ControllerBase

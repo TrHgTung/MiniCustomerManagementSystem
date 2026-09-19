@@ -4,6 +4,7 @@ using CustomerManagementSystem.core.backend.Helpers;
 using CustomerManagementSystem.core.backend.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace CustomerManagementSystem.core.backend.Controllers.Admin
 {
@@ -14,6 +15,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
     /// SA (Role="2"): thêm/sửa/xóa trực tiếp, isActive = true ngay
     /// Manager (Role="1"): thêm/sửa được nhưng isActive = false, chờ SA duyệt approve
     /// </summary>
+    [EnableRateLimiting("Admin")]
     [Authorize]
     [ApiController]
     [Route("admin/customers")]

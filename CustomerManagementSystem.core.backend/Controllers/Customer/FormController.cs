@@ -2,6 +2,7 @@ using CustomerManagementSystem.core.backend.Data.DTO.Customer;
 using CustomerManagementSystem.core.backend.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace CustomerManagementSystem.core.backend.Controllers.Customer
 {
@@ -10,6 +11,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Customer
     /// Tiếp nhận thông tin biểu mẫu tư vấn do Khách hàng gửi từ trang chủ / client
     /// Khách hàng không cần xác thực (AllowAnonymous)
     /// </summary>
+    [EnableRateLimiting("Customer")]
     [ApiController]
     [Route("customer/form")]
     [AllowAnonymous]
