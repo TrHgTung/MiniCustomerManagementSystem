@@ -62,6 +62,7 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
             var refreshTokenEntity = new RefreshToken
             {
                 Token = refreshTokenString,
+                OrgId = member.OrgId,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
@@ -111,6 +112,11 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
                 throw new SecurityTokenException("Refresh token không hợp lệ hoặc đã bị vô hiệu hóa.");
             }
 
+            if (!string.Equals(storedRefreshToken.OrgId, member.OrgId, StringComparison.Ordinal))
+            {
+                throw new SecurityTokenException("Refresh token không thuộc tài khoản này.");
+            }
+
             if (storedRefreshToken.CreatedAt.AddDays(_refreshTokenLifetimeDays) < DateTime.UtcNow)
             {
                 await _refreshTokenRepository.RevokeAsync(storedRefreshToken.Token);
@@ -127,6 +133,7 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
             await _refreshTokenRepository.CreateAsync(new RefreshToken
             {
                 Token = newRefreshTokenString,
+                OrgId = member.OrgId,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             });
