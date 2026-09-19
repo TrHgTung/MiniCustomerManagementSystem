@@ -5,6 +5,7 @@ using CustomerManagementSystem.core.backend.Repositories.Interface;
 using CustomerManagementSystem.core.backend.Services.Implement;
 using CustomerManagementSystem.core.backend.Services.Interface;
 using CustomerManagementSystem.core.backend.Configurations;
+using CustomerManagementSystem.core.backend.Helpers.Attributes;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -32,7 +33,8 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:4402")
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowCredentials()
+              .WithExposedHeaders("X-Idempotency-Replayed");
     });
 });
 
@@ -100,6 +102,9 @@ builder.Services.AddSwaggerGen(options =>
             Array.Empty<string>()
         }
     });
+
+    // Cho nhập idemp key trên swagger docs
+    options.OperationFilter<IdempotencyHeaderOperationFilter>();
 });
 
 // Database Context
@@ -157,6 +162,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IInitialSAAccountService, InitialSAAccountService>();
 builder.Services.AddScoped<IAdministrativeService, AdministrativeService>();
 builder.Services.AddScoped<IExcelExportService, ExportExcelService>();
+builder.Services.AddScoped<IIdempotencyService, IdempotencyService>();
+
+// Đăng ký IdempotencyFilter
+builder.Services.AddScoped<IdempotencyFilter>();
 
 var app = builder.Build();
 

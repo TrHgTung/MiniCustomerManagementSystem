@@ -29,6 +29,7 @@ builder.Services.AddAuthorizationCore();
 // thêm header vào http client
 // HTTP Delegating Handlers (gắn Bearer JWT token tự động)
 builder.Services.AddTransient<AuthHeaderHandler>();
+builder.Services.AddTransient<IdempotencyKeyHandler>();
 
 // HttpClient nội bộ phục vụ tải tài nguyên tĩnh frontend
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
@@ -37,9 +38,11 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddHttpClient<IAuthService, AuthService>(client => client.BaseAddress = apiUri);
 
 builder.Services.AddHttpClient<ICustomerService, CustomerService>(client => client.BaseAddress = apiUri)
-    .AddHttpMessageHandler<AuthHeaderHandler>();
+    .AddHttpMessageHandler<AuthHeaderHandler>()
+    .AddHttpMessageHandler<IdempotencyKeyHandler>();
 
 builder.Services.AddHttpClient<IAdministrativeService, AdministrativeService>(client => client.BaseAddress = apiUri)
-    .AddHttpMessageHandler<AuthHeaderHandler>();
+    .AddHttpMessageHandler<AuthHeaderHandler>()
+    .AddHttpMessageHandler<IdempotencyKeyHandler>();
 
 await builder.Build().RunAsync();

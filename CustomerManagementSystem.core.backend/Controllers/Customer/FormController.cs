@@ -1,4 +1,5 @@
 using CustomerManagementSystem.core.backend.Data.DTO.Customer;
+using CustomerManagementSystem.core.backend.Helpers.Attributes;
 using CustomerManagementSystem.core.backend.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,6 +31,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Customer
         /// Khách hàng gửi thông tin biểu mẫu tư vấn từ trang chủ (POST api/v1/customer/form)
         /// </summary>
         [HttpPost]
+        [Idempotent(ExpireMinutes = 120)]
         public async Task<IActionResult> SubmitForm([FromBody] CustomerFormDto formDto)
         {
             if (!ModelState.IsValid)

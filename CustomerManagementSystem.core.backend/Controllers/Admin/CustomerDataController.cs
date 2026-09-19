@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using CustomerManagementSystem.core.backend.Data.DTO.Customer;
 using CustomerManagementSystem.core.backend.Helpers;
+using CustomerManagementSystem.core.backend.Helpers.Attributes;
 using CustomerManagementSystem.core.backend.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -83,6 +84,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
         /// SA -> isActive = true ngay, Manager -> isActive = false (chờ duyệt)
         /// </summary>
         [HttpPost]
+        [Idempotent]
         public async Task<ActionResult<CustomerDto>> Create([FromBody] CreateCustomerDto createDto)
         {
             if (!ModelState.IsValid)
@@ -115,6 +117,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
         /// SA -> giữ nguyên isActive, Manager -> isActive = false (chờ duyệt lại)
         /// </summary>
         [HttpPut("{id}")]
+        [Idempotent]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateCustomerDto updateDto)
         {
             if (!ModelState.IsValid)

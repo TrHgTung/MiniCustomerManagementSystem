@@ -1,4 +1,5 @@
 using CustomerManagementSystem.core.backend.Data.DTO.Administrative;
+using CustomerManagementSystem.core.backend.Helpers.Attributes;
 using CustomerManagementSystem.core.backend.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -64,6 +65,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
         /// Chỉ SA (Role = "2") mới có quyền gọi API này
         /// </summary>
         [HttpPost("managers")]
+        [Idempotent]
         public async Task<ActionResult<ManagerDto>> CreateManager([FromBody] CreateManagerDto createDto)
         {
             if (!ModelState.IsValid)
