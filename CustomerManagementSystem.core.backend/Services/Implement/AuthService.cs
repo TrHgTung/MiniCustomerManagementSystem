@@ -29,8 +29,8 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
             _orgMemberRepository = orgMemberRepository;
             _refreshTokenRepository = refreshTokenRepository;
             _configuration = configuration;
-            _accessTokenLifetimeMinutes = configuration.GetValue<int>("Jwt:AccessTokenLifetimeMinutes");
-            _refreshTokenLifetimeDays = configuration.GetValue<int>("Jwt:RefreshTokenLifetimeDays");
+            _accessTokenLifetimeMinutes = configuration.GetValue<int>("Jwt:AccessTokenLifetimeMinutes"); // đổi lại access token ttl là 15 phút
+            _refreshTokenLifetimeDays = configuration.GetValue<int>("Jwt:RefreshTokenLifetimeDays"); // refresh token ttl là 7 days
 
             if (_accessTokenLifetimeMinutes <= 0 || _refreshTokenLifetimeDays <= 0)
             {
