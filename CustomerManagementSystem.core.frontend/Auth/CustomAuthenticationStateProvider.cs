@@ -35,7 +35,7 @@ namespace CustomerManagementSystem.core.frontend.Auth
                     var expDate = DateTimeOffset.FromUnixTimeSeconds(expSeconds);
                     if (expDate <= DateTimeOffset.UtcNow)
                     {
-                        await _localStorage.RemoveItemAsync(TokenKey);
+                        // await _localStorage.RemoveItemAsync(TokenKey);
                         return _anonymous;
                     }
                 }
