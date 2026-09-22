@@ -4,6 +4,7 @@ using CustomerManagementSystem.core.backend.Entities.AppDataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CustomerManagementSystem.core.backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260919065738_AddIdempotencyTable")]
+    partial class AddIdempotencyTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -161,10 +164,6 @@ namespace CustomerManagementSystem.core.backend.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("OrgId")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasMaxLength(128)
@@ -172,19 +171,7 @@ namespace CustomerManagementSystem.core.backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrgId");
-
                     b.ToTable("RefreshTokens");
-                });
-
-            modelBuilder.Entity("CustomerManagementSystem.core.backend.Entities.Models.RefreshToken", b =>
-                {
-                    b.HasOne("CustomerManagementSystem.core.backend.Entities.Models.OrgMember", "OrgMember")
-                        .WithMany()
-                        .HasForeignKey("OrgId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("OrgMember");
                 });
 #pragma warning restore 612, 618
         }

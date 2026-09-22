@@ -4,6 +4,7 @@ using CustomerManagementSystem.core.backend.Helpers;
 using CustomerManagementSystem.core.backend.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace CustomerManagementSystem.core.backend.Controllers.Admin
 {
@@ -12,6 +13,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin
     /// Xuất dữ liệu báo cáo ra bảng tính Excel
     /// Cho phép cả SA (Role = "2") và Manager (Role = "1") truy cập (Policy = ManagerOrAdmin)
     /// </summary>
+    [EnableRateLimiting("Admin")]
     [Authorize(Policy = "ManagerOrAdmin")]
     [ApiController]
     [Route("admin/export")]

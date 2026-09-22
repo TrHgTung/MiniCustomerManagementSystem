@@ -8,27 +8,27 @@ namespace CustomerManagementSystem.core.backend.Entities.Models
         [Key]
         [Required]
         [MaxLength(128)]
-        public string CustomerId { get; set; } // Ma KH
+        public string CustomerId { get; set; } = string.Empty; // Ma KH
 
         [Required]
         [StringLength(128)]
-        public string CustomerName { get; set; } // Ho va ten
+        public string CustomerName { get; set; } = string.Empty; // Ho va ten
 
         [Required]
         [StringLength(128)]
         [EmailAddress]
-        public string CustomerEmail { get; set; } // Email
+        public string CustomerEmail { get; set; } = string.Empty; // Email
 
         [Required]
         [StringLength(16)]
-        public string CustomerPhone { get; set; } // So dien thoai
+        public string CustomerPhone { get; set; } = string.Empty; // So dien thoai
 
         [Required]
         public DateTime CustomerBirth { get; set; } // Ngay sinh
 
         [Required]
         [StringLength(128)]
-        public string CustomerAddress { get; set; } // Noi sinh song
+        public string CustomerAddress { get; set; } = string.Empty; // Noi sinh song
 
         [Required]
         public bool IsActive { get; set; } = true; // Trang thai hoat dong

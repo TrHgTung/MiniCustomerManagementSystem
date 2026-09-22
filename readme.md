@@ -64,10 +64,11 @@ cd MiniCustomerManagementSystem
 
 ### Bước 2: Cấu hình chuỗi kết nối Database (Connection String)
 
-Mở file cấu hình của backend:
+- Trong SSMS: tạo một DB mới, trống, đặt tên `CustomerManagement` (hoặc tên khác, nhưng đảm bảo tên trong chuỗi kết nối phải khớp)
+- Thiết lập chuỗi kết nối: Mở file cấu hình của folder backend:
 📂 `CustomerManagementSystem.core.backend/appsettings.json`
 
-Tìm đến mục `ConnectionStrings:DefaultConnection`:
+Tìm đến mục `ConnectionStrings:DefaultConnection` - đây chính là chuỗi kết nối từ backend đến DB SqlServer:
 ```json
 "ConnectionStrings": {
   "DefaultConnection": "Server=.;Database=CustomerManagement;Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True;"
