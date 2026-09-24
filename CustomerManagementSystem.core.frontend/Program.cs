@@ -6,7 +6,6 @@ using CustomerManagementSystem.core.frontend.Auth;
 using CustomerManagementSystem.core.frontend.Services.Contracts;
 using CustomerManagementSystem.core.frontend.Services.Implementations;
 using CustomerManagementSystem.core.frontend.Services.Http;
-using CustomerManagementSystem.core.frontend.Services.LocalStorage;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");

@@ -3,6 +3,9 @@ using CustomerManagementSystem.core.frontend.Models.Customer;
 
 namespace CustomerManagementSystem.core.frontend.Services.Contracts
 {
+    /// <summary>
+    /// Service for customer operations.
+    /// </summary>
     public interface ICustomerService
     {
         // Khách hàng vãng lai (Public form)
