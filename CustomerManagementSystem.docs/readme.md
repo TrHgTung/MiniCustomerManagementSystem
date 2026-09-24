@@ -64,10 +64,11 @@ cd MiniCustomerManagementSystem
 
 ### Bước 2: Cấu hình chuỗi kết nối Database (Connection String)
 
-Mở file cấu hình của backend:
+- Trong SSMS: tạo một DB mới, trống, đặt tên `CustomerManagement` (hoặc tên khác, nhưng đảm bảo tên trong chuỗi kết nối phải khớp)
+- Thiết lập chuỗi kết nối: Mở file cấu hình của folder backend:
 📂 `CustomerManagementSystem.core.backend/appsettings.json`
 
-Tìm đến mục `ConnectionStrings:DefaultConnection`:
+Tìm đến mục `ConnectionStrings:DefaultConnection` - đây chính là chuỗi kết nối từ backend đến DB SqlServer:
 ```json
 "ConnectionStrings": {
   "DefaultConnection": "Server=.;Database=CustomerManagement;Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True;"
@@ -283,3 +284,6 @@ CustomerManagementSystem/
 - Tài liệu online và Video demo: https://tungth-dev.pages.dev/projects/mini-customer-management-system
 - Source code: https://github.com/TrHgTung/MiniCustomerManagementSystem
 - Hoang Tung (TungTH)
+- Note: 
+git stash push -u -m "move to branch ...."
+v- Maintain (v1.1): fix (secure): put refresh token through the HTTP-only cookie, instead of localStorage. And mark the isActive flag is "fasle" after SA/Manager logout from client
