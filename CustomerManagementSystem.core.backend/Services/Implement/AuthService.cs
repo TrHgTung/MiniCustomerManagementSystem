@@ -162,6 +162,16 @@ namespace CustomerManagementSystem.core.backend.Services.Implement
             return revoked;
         }
 
+        public async Task<bool> RevokeByOrgIdAsync(string orgId)
+        {
+            var revoked = await _refreshTokenRepository.RevokeByOrgIdAsync(orgId);
+            if (revoked)
+            {
+                _logger.LogInformation("Các refresh token của tài khoản {OrgId} đã được thu hồi.", orgId);
+            }
+            return revoked;
+        }
+
         /// <summary>
         /// lấy thông tin người dùng
         /// </summary>

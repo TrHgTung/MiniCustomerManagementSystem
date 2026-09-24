@@ -7,5 +7,6 @@ namespace CustomerManagementSystem.core.backend.Repositories.Interface
         Task<RefreshToken?> GetByTokenAsync(string token);
         Task<RefreshToken> CreateAsync(RefreshToken refreshToken);
         Task<bool> RevokeAsync(string token);
+        Task<bool> RevokeByOrgIdAsync(string orgId);
     }
 }

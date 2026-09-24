@@ -41,6 +41,7 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin.Auth
             try
             {
                 var response = await _authService.LoginAsync(loginDto);
+                SetRefreshTokenCookie(response.RefreshToken, response.ExpiresAt);
                 return Ok(response);
             }
             catch (UnauthorizedAccessException ex)
@@ -66,14 +67,36 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin.Auth
         [AllowAnonymous]
         public async Task<ActionResult<AuthResponseDto>> RefreshToken([FromBody] RefreshTokenRequestDto refreshDto)
         {
-            if (!ModelState.IsValid)
+            var refreshToken = refreshDto?.RefreshToken;
+            if (string.IsNullOrWhiteSpace(refreshToken))
             {
-                return BadRequest(ModelState);
+                refreshToken = Request.Cookies["refreshToken"];
             }
+
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return Unauthorized(new {
+                    message = "Refresh token không hợp lệ hoặc đã bị vô hiệu hóa."
+                });
+            }
+
+            if (refreshDto == null || string.IsNullOrWhiteSpace(refreshDto.AccessToken))
+            {
+                return BadRequest(new {
+                    message = "Thiếu AccessToken"
+                });
+            }
+
+            var request = new RefreshTokenRequestDto
+            {
+                AccessToken = refreshDto.AccessToken,
+                RefreshToken = refreshToken
+            };
 
             try
             {
-                var response = await _authService.RefreshTokenAsync(refreshDto);
+                var response = await _authService.RefreshTokenAsync(request);
+                SetRefreshTokenCookie(response.RefreshToken, response.ExpiresAt);
                 return Ok(response);
             }
             catch (SecurityTokenException ex)
@@ -103,16 +126,35 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin.Auth
         /// </summary>
         [HttpPost("logout")]
         [Authorize]
-        public async Task<IActionResult> Logout([FromBody] LogoutRequestDto logoutDto)
+        public async Task<IActionResult> Logout([FromBody(EmptyBodyBehavior = Microsoft.AspNetCore.Mvc.ModelBinding.EmptyBodyBehavior.Allow)] LogoutRequestDto? logoutDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             try
             {
-                await _authService.LogoutAsync(logoutDto);
+                var refreshToken = logoutDto?.RefreshToken;
+                if (string.IsNullOrWhiteSpace(refreshToken))
+                {
+                    refreshToken = Request.Cookies["refreshToken"];
+                }
+
+                var revoked = false;
+                if (!string.IsNullOrWhiteSpace(refreshToken))
+                {
+                    revoked = await _authService.LogoutAsync(new LogoutRequestDto { RefreshToken = refreshToken });
+                }
+
+                // Nếu không có token từ cookie/body hoặc revoke theo token chưa được, revoke theo OrgId từ Claims của AccessToken
+                if (!revoked)
+                {
+                    var orgId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                             ?? User.FindFirst("sub")?.Value;
+                    if (!string.IsNullOrEmpty(orgId))
+                    {
+                        await _authService.RevokeByOrgIdAsync(orgId);
+                    }
+                }
+
+                DeleteRefreshTokenCookie();
+
                 return Ok(new {
                     message = "Đăng xuất thành công"
                 });
@@ -127,5 +169,27 @@ namespace CustomerManagementSystem.core.backend.Controllers.Admin.Auth
             }
         }
 
+        private void SetRefreshTokenCookie(string refreshToken, DateTime expiresAt)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Lax,
+                Expires = expiresAt > DateTime.UtcNow ? expiresAt : DateTime.UtcNow.AddDays(7)
+            };
+            Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+        }
+
+        private void DeleteRefreshTokenCookie()
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Lax
+            };
+            Response.Cookies.Delete("refreshToken", cookieOptions);
+        }
     }
 }
