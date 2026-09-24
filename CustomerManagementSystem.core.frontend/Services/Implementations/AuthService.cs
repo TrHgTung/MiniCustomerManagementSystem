@@ -6,13 +6,13 @@ using CustomerManagementSystem.core.frontend.Models.Common;
 using CustomerManagementSystem.core.frontend.Services.Contracts;
 using CustomerManagementSystem.core.frontend.Services.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
 
 namespace CustomerManagementSystem.core.frontend.Services.Implementations
 {
     public class AuthService : IAuthService
     {
         private const string TokenKey = "authToken";
-        private const string RefreshTokenKey = "refreshToken";
         private const string UserInfoKey = "userInfo";
 
         private readonly HttpClient _httpClient;
@@ -31,7 +31,13 @@ namespace CustomerManagementSystem.core.frontend.Services.Implementations
 
         public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
         {
-            var response = await _httpClient.PostAsJsonAsync("admin/auth/login", request);
+            using var loginRequest = new HttpRequestMessage(HttpMethod.Post, "admin/auth/login")
+            {
+                Content = JsonContent.Create(request)
+            };
+            loginRequest.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+            var response = await _httpClient.SendAsync(loginRequest);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -59,7 +65,6 @@ namespace CustomerManagementSystem.core.frontend.Services.Implementations
             }
 
             await _localStorage.SetItemAsync(TokenKey, authResponse.AccessToken);
-            await _localStorage.SetItemAsync(RefreshTokenKey, authResponse.RefreshToken);
             await _localStorage.SetItemAsync(UserInfoKey, authResponse.User);
 
             if (_authStateProvider is CustomAuthenticationStateProvider customProvider)
@@ -74,11 +79,9 @@ namespace CustomerManagementSystem.core.frontend.Services.Implementations
         {
             try
             {
-                var refreshToken = await _localStorage.GetItemAsync<string>(RefreshTokenKey);
-                if (!string.IsNullOrEmpty(refreshToken))
-                {
-                    await _httpClient.PostAsJsonAsync("admin/auth/logout", new { refreshToken });
-                }
+                using var logoutRequest = new HttpRequestMessage(HttpMethod.Post, "admin/auth/logout");
+                logoutRequest.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+                await _httpClient.SendAsync(logoutRequest);
             }
             catch (Exception ex)
             {
@@ -87,7 +90,6 @@ namespace CustomerManagementSystem.core.frontend.Services.Implementations
             finally
             {
                 await _localStorage.RemoveItemAsync(TokenKey);
-                await _localStorage.RemoveItemAsync(RefreshTokenKey);
                 await _localStorage.RemoveItemAsync(UserInfoKey);
 
                 if (_authStateProvider is CustomAuthenticationStateProvider customProvider)

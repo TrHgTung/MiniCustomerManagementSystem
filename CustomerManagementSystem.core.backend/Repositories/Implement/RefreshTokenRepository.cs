@@ -43,5 +43,22 @@ namespace CustomerManagementSystem.core.backend.Repositories.Implement
             }
             else return false;
         }
+
+        public async Task<bool> RevokeByOrgIdAsync(string orgId)
+        {
+            var activeTokens = await _context.RefreshTokens
+                .Where(r => r.OrgId == orgId && r.IsActive)
+                .ToListAsync();
+
+            if (!activeTokens.Any())
+                return false;
+
+            foreach (var token in activeTokens)
+            {
+                token.IsActive = false;
+            }
+
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }
