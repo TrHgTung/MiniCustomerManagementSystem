@@ -284,3 +284,4 @@ CustomerManagementSystem/
 - Tài liệu online và Video demo: https://tungth-dev.pages.dev/projects/mini-customer-management-system
 - Source code: https://github.com/TrHgTung/MiniCustomerManagementSystem
 - Hoang Tung (TungTH)
+- Maintain (v1.1): fix (secure): put refresh token through the HTTP-only cookie, instead of localStorage. And mark the isActive flag is "fasle" after SA/Manager logout from client
