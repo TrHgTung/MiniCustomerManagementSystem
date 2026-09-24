@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using CustomerManagementSystem.core.frontend.Auth;
 using CustomerManagementSystem.core.frontend.Models.Auth;
 using CustomerManagementSystem.core.frontend.Services.Contracts;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
 
 namespace CustomerManagementSystem.core.frontend.Services.Http
 {
@@ -14,7 +15,6 @@ namespace CustomerManagementSystem.core.frontend.Services.Http
     public class TokenRefreshHandler : DelegatingHandler
     {
         private const string TokenKey = "authToken";
-        private const string RefreshTokenKey = "refreshToken";
         private const string UserInfoKey = "userInfo";
         private static readonly SemaphoreSlim RefreshLock = new(1, 1);
 
@@ -74,18 +74,20 @@ namespace CustomerManagementSystem.core.frontend.Services.Http
                     return currentAccessToken;
                 }
 
-                var refreshToken = await _localStorage.GetItemAsync<string>(RefreshTokenKey);
-                if (string.IsNullOrWhiteSpace(currentAccessToken) || string.IsNullOrWhiteSpace(refreshToken))
+                if (string.IsNullOrWhiteSpace(currentAccessToken))
                 {
                     await ClearAuthenticationAsync();
                     return null;
                 }
 
                 var client = _httpClientFactory.CreateClient("AuthRefreshClient");
-                using var refreshResponse = await client.PostAsJsonAsync(
-                    "admin/auth/refresh-token",
-                    new { accessToken = currentAccessToken, refreshToken },
-                    cancellationToken);
+                using var refreshRequest = new HttpRequestMessage(HttpMethod.Post, "admin/auth/refresh-token")
+                {
+                    Content = JsonContent.Create(new { accessToken = currentAccessToken })
+                };
+                refreshRequest.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+                using var refreshResponse = await client.SendAsync(refreshRequest, cancellationToken);
 
                 if (!refreshResponse.IsSuccessStatusCode)
                 {
@@ -94,16 +96,13 @@ namespace CustomerManagementSystem.core.frontend.Services.Http
                 }
 
                 var authResponse = await refreshResponse.Content.ReadFromJsonAsync<AuthResponseDto>(cancellationToken: cancellationToken);
-                if (authResponse == null ||
-                    string.IsNullOrWhiteSpace(authResponse.AccessToken) ||
-                    string.IsNullOrWhiteSpace(authResponse.RefreshToken))
+                if (authResponse == null || string.IsNullOrWhiteSpace(authResponse.AccessToken))
                 {
                     await ClearAuthenticationAsync();
                     return null;
                 }
 
                 await _localStorage.SetItemAsync(TokenKey, authResponse.AccessToken);
-                await _localStorage.SetItemAsync(RefreshTokenKey, authResponse.RefreshToken);
                 await _localStorage.SetItemAsync(UserInfoKey, authResponse.User);
                 _authenticationStateProvider.NotifyUserAuthentication(authResponse.AccessToken);
 
@@ -118,7 +117,6 @@ namespace CustomerManagementSystem.core.frontend.Services.Http
         private async Task ClearAuthenticationAsync()
         {
             await _localStorage.RemoveItemAsync(TokenKey);
-            await _localStorage.RemoveItemAsync(RefreshTokenKey);
             await _localStorage.RemoveItemAsync(UserInfoKey);
             _authenticationStateProvider.NotifyUserLogout();
         }
