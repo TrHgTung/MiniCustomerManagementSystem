@@ -1,15 +1,12 @@
 using System.Text.Json;
 using Microsoft.JSInterop;
+using CustomerManagementSystem.core.frontend.Services.Contracts;
 
-namespace CustomerManagementSystem.core.frontend.Services.LocalStorage
+namespace CustomerManagementSystem.core.frontend.Services.Implementations
 {
-    public interface ILocalStorageService
-    {
-        ValueTask SetItemAsync<T>(string key, T value);
-        ValueTask<T?> GetItemAsync<T>(string key);
-        ValueTask RemoveItemAsync(string key);
-    }
-
+    /// <summary>
+    /// Implementation of ILocalStorageService using JavaScript interop.
+    /// </summary>
     public class LocalStorageService : ILocalStorageService
     {
         private readonly IJSRuntime _jsRuntime;

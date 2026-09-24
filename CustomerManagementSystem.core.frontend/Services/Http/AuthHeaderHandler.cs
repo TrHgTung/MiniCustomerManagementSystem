@@ -1,8 +1,11 @@
 using System.Net.Http.Headers;
-using CustomerManagementSystem.core.frontend.Services.LocalStorage;
+using CustomerManagementSystem.core.frontend.Services.Contracts;
 
 namespace CustomerManagementSystem.core.frontend.Services.Http
 {
+    /// <summary>
+    /// Adds a JWT access token to outgoing requests.
+    /// </summary>
     public class AuthHeaderHandler : DelegatingHandler
     {
         private const string TokenKey = "authToken";

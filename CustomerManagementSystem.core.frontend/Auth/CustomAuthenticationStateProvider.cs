@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
-using CustomerManagementSystem.core.frontend.Services.LocalStorage;
+using CustomerManagementSystem.core.frontend.Services.Contracts;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace CustomerManagementSystem.core.frontend.Auth

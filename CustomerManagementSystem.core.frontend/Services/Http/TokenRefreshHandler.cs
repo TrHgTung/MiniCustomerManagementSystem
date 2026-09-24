@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using CustomerManagementSystem.core.frontend.Auth;
 using CustomerManagementSystem.core.frontend.Models.Auth;
-using CustomerManagementSystem.core.frontend.Services.LocalStorage;
+using CustomerManagementSystem.core.frontend.Services.Contracts;
 
 namespace CustomerManagementSystem.core.frontend.Services.Http
 {

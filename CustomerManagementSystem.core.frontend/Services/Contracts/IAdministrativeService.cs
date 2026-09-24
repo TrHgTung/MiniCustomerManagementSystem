@@ -2,6 +2,9 @@ using CustomerManagementSystem.core.frontend.Models.Administrative;
 
 namespace CustomerManagementSystem.core.frontend.Services.Contracts
 {
+    /// <summary>
+    /// Service for administrative operations.
+    /// </summary>
     public interface IAdministrativeService
     {
         Task<IEnumerable<ManagerDto>> GetAllManagersAsync();

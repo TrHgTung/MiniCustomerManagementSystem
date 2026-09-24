@@ -4,7 +4,6 @@ using CustomerManagementSystem.core.frontend.Auth;
 using CustomerManagementSystem.core.frontend.Models.Auth;
 using CustomerManagementSystem.core.frontend.Models.Common;
 using CustomerManagementSystem.core.frontend.Services.Contracts;
-using CustomerManagementSystem.core.frontend.Services.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace CustomerManagementSystem.core.frontend.Services.Implementations
